@@ -5,7 +5,7 @@
 
 version: 2
 updates:
-  - package-ecosystem: '' # See documentation for possible values
+  - package-ecosystem: 'npm' # Dependabot uses npm for pnpm projects too.
     directory: '/' # Location of package manifests
     schedule:
       interval: 'weekly'
