@@ -1,0 +1,231 @@
+.planner-entry,
+.planner-toolbar,
+.plan-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.planner-entry p,
+.plan-heading p {
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.planner-entry :global(.button) {
+  flex-shrink: 0;
+}
+.planner-toolbar {
+  margin: 24px 0 12px;
+}
+.category-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #e9eee3;
+  border-radius: 9px;
+}
+.category-switch button {
+  padding: 10px 24px;
+  border-radius: 6px;
+  background: transparent;
+  color: #576950;
+  font-size: 13px;
+}
+.category-switch button.selected {
+  background: #fff;
+  color: var(--green);
+  box-shadow: 0 2px 6px #243a2010;
+  font-weight: 600;
+}
+.category-plan {
+  margin: 24px 0 30px;
+}
+.plan-heading {
+  margin-bottom: 18px;
+}
+.plan-heading h2 {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.parts-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.part-column {
+  background: #eef2e9;
+  border: 1px solid #dde5d6;
+  border-radius: 12px;
+  padding: 14px;
+  min-width: 0;
+}
+.part-column > header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 4px 0 18px;
+}
+.part-number {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: #dce6d4;
+  border-radius: 9px;
+  color: #5c754c;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.part-column h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.part-column header div > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.discipline-card {
+  padding: 16px;
+  background: white;
+  border: 1px solid #e0e7da;
+  border-radius: 9px;
+  margin-bottom: 12px;
+}
+.discipline-card:last-child {
+  margin-bottom: 0;
+}
+.discipline-card h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.discipline-card summary {
+  font-size: 11px;
+  color: var(--muted);
+}
+.discipline-card ul {
+  font-size: 11px;
+  padding-left: 17px;
+  overflow-wrap: anywhere;
+}
+.discipline-card label {
+  font-size: 10px;
+  margin-top: 18px;
+  color: var(--muted);
+}
+.discipline-card select {
+  font-size: 12px;
+  min-height: 36px;
+  padding: 7px 10px;
+}
+.discipline-card.has-conflict {
+  border-color: #d6ab74;
+}
+.empty-part {
+  border: 1px dashed #cbd6c1;
+  border-radius: 8px;
+  padding: 24px 12px;
+  text-align: center;
+  color: #7d8b73;
+  font-size: 11px;
+}
+.part-conflicts {
+  background: #faf0df;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 11px;
+  color: #88622e;
+}
+.part-conflicts ul {
+  padding-left: 15px;
+  margin-bottom: 0;
+}
+.part-conflicts li {
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.conflict-label {
+  color: #98632e;
+}
+.plan-method {
+  margin-top: 12px;
+}
+.planner-explanation {
+  font-size: 12px;
+}
+.planner-explanation summary {
+  font-weight: 600;
+}
+.planner-explanation p {
+  margin: 14px 0 0;
+  color: var(--muted);
+}
+@media (max-width: 1000px) {
+  .parts-board {
+    gap: 8px;
+  }
+  .part-column {
+    padding: 10px;
+  }
+  .discipline-card {
+    padding: 12px;
+  }
+  .planner-entry {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 760px) {
+  .parts-board {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .planner-toolbar,
+  .plan-heading {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .category-switch {
+    flex: 1;
+  }
+  .category-switch button {
+    flex: 1;
+  }
+  .planner-toolbar > :global(.button) {
+    width: 100%;
+  }
+}
+@media print {
+  .category-plan details::details-content {
+    content-visibility: visible;
+  }
+  .parts-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .part-column {
+    background: white;
+    break-inside: avoid;
+  }
+  .discipline-card {
+    padding: 8px;
+  }
+  .category-plan {
+    break-inside: avoid;
+  }
+  .empty-part {
+    font-size: 9px;
+  }
+  .plan-heading h2 {
+    font-size: 18px;
+  }
+  .category-plan details > ul {
+    display: block;
+  }
+  .category-plan details > summary {
+    display: none;
+  }
+}

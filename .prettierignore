@@ -1,0 +1,7 @@
+node_modules/
+dist/
+private-data/
+pnpm-lock.yaml
+.agents/
+playwright-report/
+test-results/

@@ -1,0 +1,43 @@
+# Local source data and competition reference documents
+/Turnfestanmeldung Biel 2027.csv
+/wettkampfvorschriften-stf-2027-version-20260924.pdf
+/private-data/
+
+# Local system and build files
+.DS_Store
+node_modules/
+dist/
+coverage/
+.vite/
+
+playwright-report/
+test-results/
+
+# Personal JetBrains settings; shared run configurations live in .run/
+.idea/
+.pnpm-store/
+
+# Registration exports and reference documents are private by default
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.ods
+*.pdf
+
+# Local configuration and credentials (only reviewed examples may be shared)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Logs, caches, and editor artifacts
+*.log
+*.tsbuildinfo
+*.iml
+*.swp
+*.swo
+*~
+Thumbs.db
