@@ -32,6 +32,6 @@ Global design tokens and foundation/print styles live in `presentation/styles/ba
 
 ## Remaining product work
 
-Choosing a license, official Contest field verification, and event-rule validation remain separate product decisions. They are not architecture migration blockers. See [product rules](product.md) for unresolved requirements and [architecture](architecture.md) for the maintained module boundaries.
+Official Contest field verification and event-rule validation remain separate product decisions. They are not architecture migration blockers. See [product rules](product.md) for unresolved requirements and [architecture](architecture.md) for the maintained module boundaries.
 
 The verified default production build contains only `index.html`, a JavaScript bundle (about 291 kB, 92 kB gzip), and a stylesheet (about 17 kB, 4 kB gzip). No CSV/PDF or private-data files are copied to `dist/`.

@@ -55,6 +55,6 @@ Imported records remain in memory. Do not add persistence, remote logging, exter
 - Review the supplied competition PDF, identified locally as `../private-data/wettkampfvorschriften-stf-2027-version-20260924.pdf`. Its rules have not been implemented or verified here.
 - Associate future age limits, minimum team sizes, discipline restrictions, and judge requirements with an official source, section, and version.
 - Decide whether multiple events, editable source records, or opt-in saved sessions are required.
-- Choose the repository owner/name, license, and copyright holder before public release.
+- The repository is `soracel/Turnfestanmeldungs-Tool`, licensed under the [MIT License](../LICENSE), copyright (c) 2026 soracel.
 
 Do not turn an assumed sporting rule into a validation error. User-confirmed category independence is a requirement; official event eligibility remains an open question.

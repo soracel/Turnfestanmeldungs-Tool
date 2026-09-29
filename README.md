@@ -2,7 +2,7 @@
 
 A browser-based tool for analysing club members' Google Forms registrations and preparing manual entry into the Swiss Gymnastics Federation's STV Contest tool. The first event is Biel 2027.
 
-**Status:** Working browser-only application with a layered TypeScript core and React UI. CSV import, registration review, category summaries, three-part club competition planning, and a printable/copyable Contest preparation list are implemented. An open-source license, verified Contest field mappings, and competition-rule validation are still pending.
+**Status:** Working browser-only application with a layered TypeScript core and React UI. CSV import, registration review, category summaries, three-part club competition planning, and a printable/copyable Contest preparation list are implemented. Verified Contest field mappings and competition-rule validation are still pending.
 
 Repository documentation is written in **English**. The application interface remains **Swiss Standard German (de-CH)**.
 
@@ -80,4 +80,4 @@ GitHub Pages supports static HTML, CSS, and JavaScript, including public reposit
 
 ## License and independence
 
-The project is intended to be open source. MIT is proposed, but no license has been granted yet; choose the license and copyright holder before publication. This is an independent club project, not an official STV service. No Contest API or automatic submission capability has been confirmed.
+This project is open source under the [MIT License](LICENSE). Copyright (c) 2026 soracel. This is an independent club project, not an official STV service. No Contest API or automatic submission capability has been confirmed.

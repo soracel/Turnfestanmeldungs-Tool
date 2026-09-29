@@ -41,5 +41,6 @@
     "jsdom": "^26.1.0",
     "@playwright/test": "^1.56.0",
     "@types/node": "^24.7.0"
-  }
+  },
+  "license": "MIT"
 }

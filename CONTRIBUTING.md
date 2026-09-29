@@ -26,4 +26,4 @@ These are repository-local instruction files, not runtime AI dependencies or ext
 
 ## Release status
 
-The code is hosted at [soracel/Turnfestanmeldungs-Tool](https://github.com/soracel/Turnfestanmeldungs-Tool). A license and Pages publication are still pending. The existing Pages workflow publishes only `dist/` when started manually. Confirm that private input files and local development artifacts are absent from the public source and build before release.
+The code is hosted at [soracel/Turnfestanmeldungs-Tool](https://github.com/soracel/Turnfestanmeldungs-Tool). The project uses the [MIT License](LICENSE). Pages publication is still pending. The existing Pages workflow publishes only `dist/` when started manually. Confirm that private input files and local development artifacts are absent from the public source and build before release.
