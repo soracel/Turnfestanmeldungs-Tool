@@ -6,6 +6,7 @@ export interface ImportedSource {
   readonly filename: string;
   readonly demo: boolean;
   readonly table: CsvTable;
+  readonly originalTable: CsvTable;
   readonly config: ImportConfig;
 }
 export interface MappingSession extends ImportedSource {
@@ -26,6 +27,9 @@ export type SessionMessage =
   | {
       readonly kind: 'status';
       readonly code:
+        | 'registration-changed'
+        | 'downloaded'
+        | 'download-failed'
         | 'selection-changed'
         | 'plan-changed'
         | 'category-changed'

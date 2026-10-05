@@ -4,7 +4,7 @@
 
 Help a club's registration coordinator turn Google Forms responses into a reviewable preparation list for STV Contest. The coordinator remains responsible for the final entry. A local “transferred” checkbox does not confirm acceptance by Contest.
 
-The current workflow is: select CSV, confirm mappings, inspect problems, select records, review summaries, allocate club disciplines, then copy or print the preparation list. Corrections to source answers are currently made in Google Sheets and reimported.
+The current workflow is: select CSV, confirm mappings, inspect problems, select records, review summaries, allocate club disciplines, then copy or print the preparation list. Registrations can be edited in the application and the selected, corrected source rows can be downloaded as CSV for a later import.
 
 ## Input contract
 
@@ -42,6 +42,12 @@ The full Google Forms branching and option catalogue have not been verified. A s
 11. Raw answers remain inspectable. Missing, invalid, negative, and not-applicable answers must not be silently conflated. The current normalised participation model is yes/no/open; richer missing reasons are a target improvement.
 12. Counts are registration-based until the user resolves duplicates. Name and email are not authoritative identity keys.
 
+## Editing and reusable CSV exports
+
+All source cells can be edited from Registrations or Data review, including empty, unknown, and unanalysed values. Save reanalyses all registrations (including duplicate hints), preserves source identities and exclusions, reconciles surviving manual allocations, and clears transfer marks. Cancel discards the draft. The original imported cells remain inspectable during the session.
+
+The explicit CSV download includes every selected registration regardless of search/filter, with corrected cells and explicit category overrides applied. Excluded rows are omitted. Column order, duplicate headings, empty cells, quoting, and embedded newlines survive export and reimport. Explicit rows of empty cells are retained as registrations with validation hints; empty lines are skipped. No export is offered when every row is excluded. On reimport, users confirm discipline-column roles and the multi-select delimiter again. CSV does not save competition-part assignments or transfer marks. Downloads are local and do not modify the source file or Google Sheets.
+
 ## Privacy and reproducibility
 
 Use fictional data and `example.com` addresses in demos, tests, screenshots, issues, and documentation. Keep demo data deterministic so manual changes can be compared. Small independent test fixtures should not change when the demonstration dataset changes.
@@ -54,7 +60,7 @@ Imported records remain in memory. Do not add persistence, remote logging, exter
 - Verify the actual Contest input fields and required totals.
 - Review the supplied competition PDF, identified locally as `../private-data/wettkampfvorschriften-stf-2027-version-20260924.pdf`. Its rules have not been implemented or verified here.
 - Associate future age limits, minimum team sizes, discipline restrictions, and judge requirements with an official source, section, and version.
-- Decide whether multiple events, editable source records, or opt-in saved sessions are required.
+- Decide whether multiple events or opt-in saved planning sessions are required.
 - The repository is `soracel/Turnfestanmeldungs-Tool`, licensed under the [MIT License](../LICENSE), copyright (c) 2026 soracel.
 
 Do not turn an assumed sporting rule into a validation error. User-confirmed category independence is a requirement; official event eligibility remains an open question.

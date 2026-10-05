@@ -149,9 +149,10 @@ export function MappingView({ session }: { session: MappingSession }) {
         </p>
       </section>
       <section className="panel">
-        <h2>Originaldaten · Vorschau</h2>
+        <h2>Quelldaten · Vorschau</h2>
         <p className="muted">
-          Die ersten {Math.min(table.rows.length, 5)} Anmeldungen, unverändert.
+          Die ersten {Math.min(table.rows.length, 5)} Anmeldungen mit allen gespeicherten
+          Korrekturen.
         </p>
         <div className="table-scroll">
           <table>

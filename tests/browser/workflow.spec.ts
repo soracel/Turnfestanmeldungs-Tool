@@ -72,3 +72,57 @@ test('imports a fictional CSV and requires explicit discipline mapping', async (
   await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
   await expect(page.getByRole('status')).toContainText(/Disziplin/);
 });
+
+test('edits, cancels, exports selected rows and reimports corrections on a narrow screen', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page
+    .locator('input[type=file]')
+    .setInputFiles({ name: 'fixture.csv', mimeType: 'text/csv', buffer: Buffer.from(fixtureCsv) });
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(0).selectOption('club');
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(1).selectOption('club');
+  await page
+    .getByRole('combobox', { name: 'Mehrfachauswahl trennen bei', exact: true })
+    .selectOption(',');
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Anmeldungen', exact: true }).click();
+  await page.getByRole('button', { name: 'Noah Beispiel Datensatz 2 bearbeiten' }).click();
+  await page.getByRole('dialog').getByLabel('2. Vorname', { exact: true }).fill('Abgebrochen');
+  await page.getByRole('button', { name: 'Abbrechen', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Noah Beispiel Datensatz 2 bearbeiten' }),
+  ).toBeFocused();
+  await page.getByRole('checkbox', { name: 'Mia Muster Datensatz 5 auswerten' }).uncheck();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: 'Noah Beispiel Datensatz 2 bearbeiten' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('2. Vorname', { exact: true }).fill('Nico');
+  await dialog.getByLabel('5. E-Mail-Adresse', { exact: true }).fill('nico@example.com');
+  await dialog.getByLabel('4. Geburtstag', { exact: true }).fill('1995-11-04');
+  expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/registration-editor-mobile.png' });
+  await page.getByRole('button', { name: 'Änderungen speichern', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByText('Nico Beispiel', { exact: true })).toBeVisible();
+  await page.getByRole('textbox', { name: 'Suche', exact: true }).fill('Nico');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Bereinigte CSV exportieren (5)' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('anmeldungen-bereinigt.csv');
+  const saved = await download.path();
+  if (!saved) throw new Error('Missing CSV download');
+  await page.getByRole('button', { name: 'Daten verwerfen' }).click();
+  await page.locator('input[type=file]').setInputFiles(saved);
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(0).selectOption('club');
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(1).selectOption('club');
+  await page
+    .getByRole('combobox', { name: 'Mehrfachauswahl trennen bei', exact: true })
+    .selectOption(',');
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await expect(page.getByText(/5 Datensätze/)).toBeVisible();
+  await page.getByRole('button', { name: 'Anmeldungen', exact: true }).click();
+  await expect(page.getByText('Nico Beispiel', { exact: true })).toBeVisible();
+  await expect(page.locator('small').filter({ hasText: /^nico@example\.com$/ })).toBeVisible();
+  await expect(page.getByText('Mia Muster', { exact: true })).toHaveCount(1);
+});

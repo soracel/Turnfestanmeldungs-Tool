@@ -30,6 +30,7 @@ Shared configurations are available in `.run/`: select **Turnfest Dev** and pres
 
 - Search and filter registrations; inspect original values and validation hints.
 - Exclude individual records from analysis without deleting the source data.
+- Edit all registration fields and download the selected, corrected records as CSV for later reimport.
 - Review categories, disciplines, overnight stays, and judge availability.
 - Allocate club disciplines to three parts independently for **Aktive** and **35+**.
 - Generate an allocation that minimises overlapping participants; move disciplines manually and see conflicts immediately.
@@ -39,7 +40,7 @@ The demo intentionally includes duplicate registrations, missing information, an
 
 ## Data handling
 
-Imported data stays in browser memory. Reloading, discarding data, or importing a new file clears the session. Changing column mappings also resets selections and plans. Clipboard and print output contain member data only when explicitly requested through the UI.
+Imported data stays in browser memory. Reloading, discarding data, or importing a new file clears the session. Changing column mappings also resets selections and plans. CSV downloads, clipboard, and print output contain member data only when explicitly requested through the UI. To retain corrections and exclusions across reloads, use **Bereinigte CSV exportieren** under **Anmeldungen** and import that file next time. Confirm column mappings again; CSV does not retain planning allocations or transfer marks.
 
 Keep real exports in `private-data/`. The supplied original CSV and local competition PDF are excluded by `.gitignore`; neither is a public test fixture. No backend, analytics service, external fonts, or persistent member-data store is used. The Vite configuration disables automatic copying from `public/` and blocks direct development-server access to CSV/PDF files and `private-data/`.
 

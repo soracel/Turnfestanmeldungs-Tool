@@ -84,6 +84,7 @@ export function createSessionController(ports: ApplicationPorts) {
           filename: input.name,
           demo: input.demo ?? false,
           table: result.table,
+          originalTable: result.table,
           config: demoConfig,
         });
       } catch {
@@ -119,8 +120,8 @@ export function createSessionController(ports: ApplicationPorts) {
     remap() {
       const session = state.session;
       if (session.stage !== 'ready') return;
-      const { importId, filename, demo, table, config } = session;
-      setSession({ stage: 'mapping', importId, filename, demo, table, config });
+      const { importId, filename, demo, table, originalTable, config } = session;
+      setSession({ stage: 'mapping', importId, filename, demo, table, originalTable, config });
     },
     reset() {
       importRequest++;
@@ -140,6 +141,48 @@ export function createSessionController(ports: ApplicationPorts) {
         else excluded.add(id);
         return reconcile({ ...session, excluded });
       }, 'selection-changed');
+    },
+    editRegistration(id: string, values: readonly string[]) {
+      const session = state.session;
+      if (session.stage !== 'ready') return;
+      const registration = session.registrations.find((item) => item.id === id);
+      if (!registration || values.length !== session.table.headers.length) {
+        status('invalid-command');
+        return;
+      }
+      const index = registration.rowNumber - 1;
+      if (session.table.rows[index].every((value, column) => value === values[column])) return;
+      const table = {
+        ...session.table,
+        rows: session.table.rows.map((row, rowIndex) => (rowIndex === index ? [...values] : row)),
+      };
+      const registrations = analyse(table, session.config, session.importId, ports.today());
+      setSession(reconcile({ ...session, table, registrations }), {
+        kind: 'status',
+        code: 'registration-changed',
+      });
+    },
+    downloadRegistrations() {
+      const session = state.session;
+      if (session.stage !== 'ready') return;
+      const selected = selectedRegistrations(session);
+      if (!selected.length) {
+        status('invalid-command');
+        return;
+      }
+      const rows = selected.map((registration) => {
+        const row = [...session.table.rows[registration.rowNumber - 1]];
+        const override = session.overrides.get(registration.category);
+        if (override)
+          row[session.config.mapping.category] = override === 'active' ? 'Aktive' : '35+';
+        return row;
+      });
+      try {
+        ports.downloadCsv({ headers: session.table.headers, rows }, 'anmeldungen-bereinigt.csv');
+        status('downloaded');
+      } catch {
+        status('download-failed');
+      }
     },
     moveDiscipline(category: string, discipline: string, part: number) {
       const session = state.session;

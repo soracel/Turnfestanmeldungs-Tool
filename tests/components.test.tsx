@@ -17,6 +17,7 @@ async function mount(view: 'registrations' | 'planning') {
     today: () => referenceDate,
     writeClipboard: vi.fn(),
     print: vi.fn(),
+    downloadCsv: vi.fn(),
     formatExport: () => '',
   });
   const demoInput = {
