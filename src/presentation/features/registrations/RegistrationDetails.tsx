@@ -13,14 +13,16 @@ export function IssueList({ registration }: { registration: Registration }) {
 export function RegistrationDetails({
   registration,
   table,
+  originalTable,
 }: {
   registration: Registration;
   table: CsvTable;
+  originalTable: CsvTable;
 }) {
   const row = table.rows[registration.rowNumber - 1];
   return (
     <details className="raw">
-      <summary>Original &amp; Hinweise</summary>
+      <summary>Angaben &amp; Hinweise</summary>
       {!!registration.issues.length && <IssueList registration={registration} />}
       <dl>
         {table.headers.map((header, column) => (
@@ -28,7 +30,14 @@ export function RegistrationDetails({
             <dt>
               {column + 1}. {header}
             </dt>
-            <dd>{row?.[column] || 'Leer'}</dd>
+            <dd>
+              {row?.[column] || 'Leer'}
+              {originalTable.rows[registration.rowNumber - 1][column] !== row?.[column] && (
+                <small>
+                  Beim Import: {originalTable.rows[registration.rowNumber - 1][column] || 'Leer'}
+                </small>
+              )}
+            </dd>
           </div>
         ))}
       </dl>

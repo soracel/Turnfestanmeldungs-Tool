@@ -1,3 +1,4 @@
+import { RegistrationEditor } from './RegistrationEditor';
 import { useState } from 'react';
 import type { ReadySession } from '../../../application/session/model';
 import {
@@ -26,6 +27,19 @@ export function RegistrationsView({ session }: { session: ReadySession }) {
         Vergleiche Angaben und wähle aus, welche Datensätze in die Auswertung einfliessen.
       </PageTitle>
       <section className="panel">
+        <button
+          className="button secondary"
+          disabled={session.excluded.size === session.registrations.length}
+          onClick={controller.downloadRegistrations}
+        >
+          Bereinigte CSV exportieren ({session.registrations.length - session.excluded.size})
+        </button>
+        <p className="muted">
+          Exportiert alle ausgewählten Anmeldungen mit den gespeicherten Änderungen und
+          Kategoriezuordnungen, unabhängig vom Suchfilter. Ausgeschlossene Anmeldungen fehlen in der
+          Datei. Beim erneuten Import bestätigst du die Spaltenzuordnung; Wettkampfteile und
+          Übertragungsstatus werden nicht gespeichert.
+        </p>
         <div className="toolbar">
           <label className="search-label">
             Suche
@@ -121,7 +135,12 @@ export function RegistrationsView({ session }: { session: ReadySession }) {
                         ? `${registration.issues.length} Hinweise`
                         : 'Keine Hinweise'}
                     </Badge>
-                    <RegistrationDetails registration={registration} table={session.table} />
+                    <RegistrationDetails
+                      registration={registration}
+                      table={session.table}
+                      originalTable={session.originalTable}
+                    />
+                    <RegistrationEditor registration={registration} session={session} />
                   </td>
                 </tr>
               ))}

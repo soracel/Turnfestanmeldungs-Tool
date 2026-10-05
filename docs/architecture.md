@@ -115,9 +115,11 @@ Example path: `DisciplineCard` emits a typed move command; the application verif
 
 ## Boundary contracts
 
-Application-owned contracts are defined in `application/imports/model.ts` and `application/ports/browser.ts`. `CsvTable` retains positional headings and rows, `ParseResult` distinguishes successful input from structured parse failures, and `ApplicationPorts` injects parsing, time, text formatting, clipboard, and print effects. `ImportInput` exposes a name, size, and asynchronous text reader without depending on `File`.
+Application-owned contracts are defined in `application/imports/model.ts` and `application/ports/browser.ts`. `CsvTable` retains positional headings and rows, `ParseResult` distinguishes successful input from structured parse failures, and `ApplicationPorts` injects parsing, time, text formatting, CSV download, clipboard, and print effects. `ImportInput` exposes a name, size, and asynchronous text reader without depending on `File`.
 
 Application code depends on these contracts, not `Papa.parse`, `File`, or `navigator`. Bootstrap constructs concrete adapters and injects them. Keep synchronous domain functions synchronous. The parser adapter preserves duplicate headings, quoting, BOM handling, empty-cell semantics, and malformed-row diagnostics.
+
+CSV download serialises the current selected source rows, with category overrides applied, through an infrastructure adapter. Original and corrected source tables remain separate in memory; editing reanalyses all records and reconciles plans.
 
 Plain-text export is a presentation adapter over a shared export model. The on-screen Contest view and copied output use the same selected records and current allocations. Print is triggered through a browser adapter and uses presentation print styles.
 

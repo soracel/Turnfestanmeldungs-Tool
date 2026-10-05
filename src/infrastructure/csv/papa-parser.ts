@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import type { ParseResult } from '../../application/imports/model';
 export function parseCsv(text: string): ParseResult {
-  const result = Papa.parse<string[]>(text.replace(/^\uFEFF/, ''), { skipEmptyLines: 'greedy' });
+  const result = Papa.parse<string[]>(text.replace(/^\uFEFF/, ''), { skipEmptyLines: true });
   if (result.errors.some((error) => error.code !== 'UndetectableDelimiter'))
     return { ok: false, code: 'malformed' };
   const [headers, ...rows] = result.data;
