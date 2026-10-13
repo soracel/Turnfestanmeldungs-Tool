@@ -48,6 +48,15 @@ export function ContestView({ session }: { session: ReadySession }) {
         aktuellen Auswahl. Die Kopierliste enthält alle ausgewählten Anmeldungen. Häkchen werden nur
         für diese Sitzung gespeichert.
       </p>
+      {!!model.unplanned.length && (
+        <div className="callout warning">
+          Noch nicht eingeplant:{' '}
+          {model.unplanned
+            .map((registration) => `${registrationName(registration)} #${registration.rowNumber}`)
+            .join(', ')}
+          .
+        </div>
+      )}
       {model.boards.map((board) => (
         <PlanningBoard key={board.category} board={board} />
       ))}
@@ -77,7 +86,9 @@ export function ContestView({ session }: { session: ReadySession }) {
               <div>
                 <span>Vereinswettkampf · {answerLabels[registration.club]}</span>
                 <strong>{registration.category || '—'}</strong>
-                <p>{registration.clubDisciplines.join(', ') || 'Keine Disziplinangabe'}</p>
+                <p>
+                  {registration.clubDisciplines.join(', ') || 'Keine Vereinsdisziplin eingeplant'}
+                </p>
               </div>
               <div>
                 <span>Einzelwettkampf · {answerLabels[registration.individual]}</span>

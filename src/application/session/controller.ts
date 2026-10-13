@@ -7,7 +7,7 @@ import { disciplinesFor } from '../../domain/planning/categories';
 import { optimise } from '../../domain/planning/optimise';
 import { conflictsFor, conflictCount } from '../../domain/planning/conflicts';
 import { reconcilePlan } from '../planning/reconcile';
-import { exportModel, selectedRegistrations } from './selectors';
+import { exportModel, plannedDisciplines, selectedRegistrations } from './selectors';
 import type { ApplicationState, ReadySession, Session, SessionMessage } from './model';
 
 export function createSessionController(ports: ApplicationPorts) {
@@ -34,14 +34,10 @@ export function createSessionController(ports: ApplicationPorts) {
     setSession(change(state.session), message ? { kind: 'status', code: message } : null);
   }
   function reconcile(session: ReadySession): ReadySession {
-    const selected = selectedRegistrations(session);
     const plans = new Map(
       categories.map((category) => [
         category,
-        reconcilePlan(
-          disciplinesFor(selected, category, session.overrides),
-          session.plans.get(category),
-        ),
+        reconcilePlan(plannedDisciplines(session, category), session.plans.get(category)),
       ]),
     );
     return { ...session, plans, transferred: new Set() };
@@ -114,6 +110,7 @@ export function createSessionController(ports: ApplicationPorts) {
         registrations,
         plans,
         excluded: new Set(),
+        excludedDisciplines: new Map(),
         transferred: new Set(),
         overrides: new Map(),
       });
@@ -185,6 +182,31 @@ export function createSessionController(ports: ApplicationPorts) {
         status('download-failed');
       }
     },
+    selectDiscipline(category: string, discipline: string, included: boolean) {
+      const session = state.session;
+      if (
+        session.stage !== 'ready' ||
+        !isCategory(category) ||
+        !disciplinesFor(selectedRegistrations(session), category, session.overrides).some(
+          (item) => item.name === discipline,
+        )
+      ) {
+        status('invalid-command');
+        return;
+      }
+      const excluded = new Set(session.excludedDisciplines.get(category));
+      if (included) excluded.delete(discipline);
+      else excluded.add(discipline);
+      const excludedDisciplines = new Map(session.excludedDisciplines);
+      excludedDisciplines.set(category, excluded);
+      const next = { ...session, excludedDisciplines };
+      const plans = new Map(session.plans);
+      plans.set(category, reconcilePlan(plannedDisciplines(next, category), plans.get(category)));
+      setSession(
+        { ...next, plans, transferred: new Set() },
+        { kind: 'status', code: 'plan-changed' },
+      );
+    },
     moveDiscipline(category: string, discipline: string, part: number) {
       const session = state.session;
       if (session.stage !== 'ready' || !isCategory(category) || !isPart(part)) {
@@ -198,12 +220,7 @@ export function createSessionController(ports: ApplicationPorts) {
       }
       const assignments = new Map(previous.assignments);
       assignments.set(discipline, part);
-      const score = conflictCount(
-        conflictsFor(
-          disciplinesFor(selectedRegistrations(session), category, session.overrides),
-          assignments,
-        ),
-      );
+      const score = conflictCount(conflictsFor(plannedDisciplines(session, category), assignments));
       const plans = new Map(session.plans);
       plans.set(category, {
         assignments,
@@ -222,10 +239,7 @@ export function createSessionController(ports: ApplicationPorts) {
       }
       updateReady((session) => {
         const plans = new Map(session.plans);
-        plans.set(
-          category,
-          optimise(disciplinesFor(selectedRegistrations(session), category, session.overrides)),
-        );
+        plans.set(category, optimise(plannedDisciplines(session, category)));
         return { ...session, plans, transferred: new Set() };
       }, 'plan-changed');
     },
