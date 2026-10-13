@@ -39,6 +39,7 @@ export function transferText(
       filename: 'fixture.csv',
       demo: true,
       table,
+      originalTable: table,
       config: initialConfig(table),
       registrations,
       excluded: new Set(),

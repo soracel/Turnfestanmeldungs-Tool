@@ -18,6 +18,7 @@ async function mount(view: 'registrations' | 'planning') {
     writeClipboard: vi.fn(),
     print: vi.fn(),
     downloadWorkbook: vi.fn(),
+    downloadCsv: vi.fn(),
     formatExport: () => '',
   });
   const demoInput = {

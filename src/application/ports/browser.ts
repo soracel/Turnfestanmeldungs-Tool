@@ -1,4 +1,4 @@
-import type { ParseResult } from '../imports/model';
+import type { CsvTable, ParseResult } from '../imports/model';
 import type { ExportModel } from '../session/selectors';
 import type { WorkbookModel } from '../session/workbook';
 export interface ImportInput {
@@ -13,5 +13,6 @@ export interface ApplicationPorts {
   writeClipboard(text: string): Promise<void>;
   print(): void;
   downloadWorkbook(model: WorkbookModel, exportedAt: Date): Promise<void>;
+  downloadCsv(table: CsvTable, filename: string): void;
   formatExport(model: ExportModel, plansOnly: boolean): string;
 }

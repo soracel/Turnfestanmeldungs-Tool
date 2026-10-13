@@ -28,6 +28,7 @@ async function setup() {
     print: vi.fn(),
     formatExport: () => '',
     downloadWorkbook,
+    downloadCsv: vi.fn(),
   });
   await controller.importSource({
     name: 'fixture.csv',
@@ -177,6 +178,19 @@ describe('Excel review export', () => {
       'Muster',
       'Muster',
     ]);
+  });
+  it('exports edited registration data while retaining the original source', async () => {
+    const { controller, ready } = await setup();
+    const before = ready();
+    const registration = before.registrations[0];
+    const row = [...before.table.rows[registration.rowNumber - 1]];
+    row[1] = 'Mira';
+    controller.editRegistration(registration.id, row);
+    const workbook = createWorkbook(workbookModel(ready()), referenceDate, messages);
+    expect(requiredSheet(workbook, 'Alle Anmeldungen').getCell('C9').value).toBe('Mira');
+    const active = requiredSheet(workbook, 'Vereinswettkampf Aktive');
+    expect(values(active).flat()).toContain('Mira');
+    expect(ready().originalTable.rows[registration.rowNumber - 1][1]).toBe('Mia');
   });
   it('downloads on explicit command and reports failure without altering session state', async () => {
     const { controller, ready, downloadWorkbook } = await setup();

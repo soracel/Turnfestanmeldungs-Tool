@@ -81,6 +81,12 @@ export function sessionMessage(message: SessionMessage): string {
   if (message.kind === 'parse') return parseErrorText(message.error);
   if (message.kind === 'mapping') return message.issues.map(mappingText).join(' ');
   const labels = {
+    'registration-changed':
+      'Anmeldung gespeichert. Hinweise und Planung aktualisiert; Übertragungsstatus zurückgesetzt.',
+    downloaded:
+      'CSV-Download gestartet. Die bereinigte Datei kann später wieder importiert werden.',
+    'download-failed': 'Die CSV-Datei konnte nicht heruntergeladen werden.',
+
     'selection-changed':
       'Auswahl aktualisiert. Bestehende Disziplinzuordnungen bleiben erhalten; Übertragungsstatus zurückgesetzt.',
     'plan-changed': 'Einteilung aktualisiert. Übertragungsstatus zurückgesetzt.',

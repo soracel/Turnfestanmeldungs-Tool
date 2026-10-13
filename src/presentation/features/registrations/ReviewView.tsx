@@ -1,3 +1,4 @@
+import { RegistrationEditor } from './RegistrationEditor';
 import type { ReadySession } from '../../../application/session/model';
 import { useServices } from '../../app/context';
 import { registrationName } from '../../messages/de-CH';
@@ -9,11 +10,12 @@ export function ReviewView({ session }: { session: ReadySession }) {
   return (
     <>
       <PageTitle eyebrow="DATENQUALITÄT" title="Offene Punkte klären.">
-        Hinweise beziehen sich auf den Import. Wettkampfregeln sind noch nicht geprüft.
+        Hinweise beziehen sich auf die aktuellen Angaben. Wettkampfregeln sind noch nicht geprüft.
       </PageTitle>
       <div className="callout">
-        Korrigiere Angaben in der Antworttabelle und importiere die CSV erneut. Mögliche
-        Mehrfachanmeldungen kannst du hier einzeln aus der Auswertung ausschliessen.
+        Bearbeite Angaben direkt hier. Unter «Anmeldungen» kannst du die bereinigte CSV für später
+        exportieren. Mögliche Mehrfachanmeldungen kannst du hier einzeln aus der Auswertung
+        ausschliessen.
       </div>
       {affected.map((registration) => (
         <section className="panel issue-card" key={registration.id}>
@@ -26,6 +28,7 @@ export function ReviewView({ session }: { session: ReadySession }) {
               {registration.email} · {registration.birth}
             </p>
             <IssueList registration={registration} />
+            <RegistrationEditor registration={registration} session={session} />
           </div>
           <label className="check-label">
             <input

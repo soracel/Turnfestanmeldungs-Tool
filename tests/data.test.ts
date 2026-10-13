@@ -20,8 +20,11 @@ describe('CSV import', () => {
     expect(csv.headers).toEqual(['Name', 'Disziplin', 'Disziplin']);
     expect(csv.rows).toEqual([['Mia "Test"', 'A, B', 'Zeile 1\nZeile 2']]);
   });
-  it('accepts semicolon-delimited files and skips blank rows', () => {
-    expect(parseCsv('A;B\r\n1;2\r\n;\r\n').rows).toEqual([['1', '2']]);
+  it('accepts semicolon-delimited files, preserves empty records and skips empty lines', () => {
+    expect(parseCsv('A;B\r\n1;2\r\n;\r\n').rows).toEqual([
+      ['1', '2'],
+      ['', ''],
+    ]);
   });
   it('rejects missing records, broken quoting, and unequal column counts', () => {
     expect(parseResult('A,B\n')).toMatchObject({ ok: false, code: 'empty' });
