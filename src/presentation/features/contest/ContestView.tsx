@@ -1,3 +1,4 @@
+import { ExcelExportButton } from '../../components/ExcelExportButton';
 import type { ReadySession } from '../../../application/session/model';
 import { exportModel } from '../../../application/session/selectors';
 import { useServices } from '../../app/context';
@@ -14,6 +15,7 @@ export function ContestView({ session }: { session: ReadySession }) {
         title="Bereit für den nächsten Schritt."
         actions={
           <div className="actions">
+            <ExcelExportButton />
             <button
               className="button secondary"
               disabled={!model.registrations.length}
@@ -42,8 +44,9 @@ export function ContestView({ session }: { session: ReadySession }) {
         </p>
       </div>
       <p className="muted small">
-        Die Kopierliste enthält alle ausgewählten Anmeldungen. Häkchen werden nur für diese Sitzung
-        gespeichert.
+        Excel enthält alle importierten Anmeldungen mit Auswahlstatus sowie Auswertungen der
+        aktuellen Auswahl. Die Kopierliste enthält alle ausgewählten Anmeldungen. Häkchen werden nur
+        für diese Sitzung gespeichert.
       </p>
       {model.boards.map((board) => (
         <PlanningBoard key={board.category} board={board} />

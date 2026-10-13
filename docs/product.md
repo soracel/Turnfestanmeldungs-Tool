@@ -54,6 +54,21 @@ Use fictional data and `example.com` addresses in demos, tests, screenshots, iss
 
 Imported records remain in memory. Do not add persistence, remote logging, external data processing, or automatic clipboard/export actions as part of a refactoring. Public deployment contains application assets and fictional fixtures only.
 
+## Excel review export
+
+The overview and Contest preparation views offer an explicit local `.xlsx` download.
+The export is a snapshot and never changes selections, allocations or transfer marks.
+It contains five worksheets in order:
+
+1. **Alle Anmeldungen**: all imported registrations, including excluded records with an explicit selection status, source row, original category, resolved category and review hints.
+2. **Einzelwettkampf**: selected positive individual responses, with discipline/apparatus counts and registration details.
+3. **Vereinswettkampf Aktive** and **Vereinswettkampf 35+**: independent side-by-side discipline rosters, grouped under the current competition parts. Each discipline has first-name and surname columns, sorted by surname and first name, followed by a total and a blank yellow responsibility field. Lists start at the same row and have a shared height. Empty parts retain a placeholder. Conflicting starts are red; source rows and review hints are cell notes. Duplicate registrations remain separate. Missing-discipline and unresolved-category notices appear below the lists. No filter is applied because rows across disciplines are independent. The two header rows stay frozen. Times and Tu/Ti are not available and are not inferred.
+4. **Richter**: selected positive judge responses and a separate clarification section for open answers or a brevet with a negative answer. Qualifications are source statements, not verified eligibility.
+
+Selected club registrations with an unresolved category remain on **Alle Anmeldungen** with an explicit warning; each category sheet reports their count and refers to that sheet. No category, timetable or eligibility rule is inferred from a reference workbook.
+
+The individual and judge summary sections sit beside their detail tables. Each sheet includes source and export time, wrapped text and a landscape print setup fitting one page wide. Valid birthdays are Excel dates; invalid values stay visible as text. Imported strings are literal cell values, never formulas. Workbook edits do not update the application.
+
 ## Open questions and future work
 
 - Confirm complete form sections, mandatory fields, and selection values.

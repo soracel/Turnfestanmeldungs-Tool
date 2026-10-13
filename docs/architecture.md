@@ -60,7 +60,7 @@ src/
   infrastructure/
     csv/                      # Papa Parse implementation, ordinal column identity
     browser/                  # File reading, clipboard, print integration
-    exports/                  # Plain-text formatting of export models
+    exports/                  # Text and Excel formatting of export models
   presentation/
     app/                      # Shell, navigation, application provider
     features/
@@ -121,7 +121,7 @@ Application code depends on these contracts, not `Papa.parse`, `File`, or `navig
 
 CSV download serialises the current selected source rows, with category overrides applied, through an infrastructure adapter. Original and corrected source tables remain separate in memory; editing reanalyses all records and reconciles plans.
 
-Plain-text export is a presentation adapter over a shared export model. The on-screen Contest view and copied output use the same selected records and current allocations. Print is triggered through a browser adapter and uses presentation print styles.
+Plain-text export is a presentation adapter over a shared export model. The on-screen Contest view and copied output use the same selected records and current allocations. Print is triggered through a browser adapter and uses presentation print styles. Excel uses a dedicated application selector and injected download port. Bootstrap loads the ExcelJS infrastructure adapter on demand; file generation and download remain local to the browser.
 
 ## UI and errors
 

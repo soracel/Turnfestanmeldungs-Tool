@@ -15,6 +15,7 @@ function setup() {
     today: () => referenceDate,
     writeClipboard,
     print: vi.fn(),
+    downloadWorkbook: vi.fn(),
     downloadCsv,
     formatExport: (model) => model.registrations.map((item) => item.id).join(','),
   });
