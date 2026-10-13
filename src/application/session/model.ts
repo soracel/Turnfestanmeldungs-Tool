@@ -30,6 +30,8 @@ export type SessionMessage =
         | 'plan-changed'
         | 'category-changed'
         | 'copied'
+        | 'workbook-downloaded'
+        | 'workbook-failed'
         | 'file-too-large'
         | 'read-failed'
         | 'copy-failed'

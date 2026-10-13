@@ -1,3 +1,4 @@
+import { workbookModel } from './workbook';
 import { analyse, initialConfig, mappingErrors } from '../imports/prepare';
 import type { ImportConfig } from '../imports/model';
 import type { ApplicationPorts, ImportInput } from '../ports/browser';
@@ -217,6 +218,16 @@ export function createSessionController(ports: ApplicationPorts) {
         if (revision === currentRevision) status('copied');
       } catch {
         if (revision === currentRevision) status('copy-failed');
+      }
+    },
+    async downloadWorkbook() {
+      if (state.session.stage !== 'ready') return;
+      const currentRevision = revision;
+      try {
+        await ports.downloadWorkbook(workbookModel(state.session), ports.today());
+        if (revision === currentRevision) status('workbook-downloaded');
+      } catch {
+        if (revision === currentRevision) status('workbook-failed');
       }
     },
     print() {

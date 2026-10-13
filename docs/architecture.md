@@ -60,7 +60,7 @@ src/
   infrastructure/
     csv/                      # Papa Parse implementation, ordinal column identity
     browser/                  # File reading, clipboard, print integration
-    exports/                  # Plain-text formatting of export models
+    exports/                  # Text and Excel formatting of export models
   presentation/
     app/                      # Shell, navigation, application provider
     features/
@@ -119,7 +119,7 @@ Application-owned contracts are defined in `application/imports/model.ts` and `a
 
 Application code depends on these contracts, not `Papa.parse`, `File`, or `navigator`. Bootstrap constructs concrete adapters and injects them. Keep synchronous domain functions synchronous. The parser adapter preserves duplicate headings, quoting, BOM handling, empty-cell semantics, and malformed-row diagnostics.
 
-Plain-text export is a presentation adapter over a shared export model. The on-screen Contest view and copied output use the same selected records and current allocations. Print is triggered through a browser adapter and uses presentation print styles.
+Plain-text export is a presentation adapter over a shared export model. The on-screen Contest view and copied output use the same selected records and current allocations. Print is triggered through a browser adapter and uses presentation print styles. Excel uses a dedicated application selector and injected download port. Bootstrap loads the ExcelJS infrastructure adapter on demand; file generation and download remain local to the browser.
 
 ## UI and errors
 

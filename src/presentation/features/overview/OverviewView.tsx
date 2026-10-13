@@ -1,3 +1,4 @@
+import { ExcelExportButton } from '../../components/ExcelExportButton';
 import type { ReadySession } from '../../../application/session/model';
 import { overviewModel } from '../../../application/session/selectors';
 import type { Registration } from '../../../domain/registration/model';
@@ -24,9 +25,12 @@ export function OverviewView({
         eyebrow="DEIN VEREIN · DEIN TURNFEST"
         title="Alles im Blick."
         actions={
-          <button className="button primary" onClick={() => navigate('contest')}>
-            Contest vorbereiten →
-          </button>
+          <div className="actions">
+            <ExcelExportButton />
+            <button className="button primary" onClick={() => navigate('contest')}>
+              Contest vorbereiten →
+            </button>
+          </div>
         }
       >
         Die Grundlage für eure Anmeldung in Biel 2027.

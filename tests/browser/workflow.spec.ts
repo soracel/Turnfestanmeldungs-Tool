@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import ExcelJS from 'exceljs';
 import { fixtureCsv } from '../fixture';
 test('runs demo planning, manual changes, current export, print, and reset under a subpath', async ({
   page,
@@ -41,6 +42,27 @@ test('runs demo planning, manual changes, current export, print, and reset under
   await page.screenshot({ path: 'test-results/planning-mobile.png', fullPage: true });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByRole('button', { name: 'Contest vorbereiten', exact: true }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Excel herunterladen' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^turnfest-auswertung-.*\.xlsx$/);
+  await download.saveAs(test.info().outputPath('review.xlsx'));
+  const path = await download.path();
+  if (!path) throw new Error('Missing workbook download');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(path);
+  expect(workbook.worksheets.map((sheet) => sheet.name)).toEqual([
+    'Alle Anmeldungen',
+    'Einzelwettkampf',
+    'Vereinswettkampf Aktive',
+    'Vereinswettkampf 35+',
+    'Richter',
+  ]);
+  expect(workbook.worksheets[0].getCell('B9').value).toBe('Ausgewählt');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('button', { name: 'Excel herunterladen' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByRole('button', { name: /kopieren/i }).click();
   await expect(page.locator('html')).toHaveAttribute(
     'data-clipboard',

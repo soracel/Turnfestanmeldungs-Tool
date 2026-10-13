@@ -91,6 +91,8 @@ export function sessionMessage(message: SessionMessage): string {
     'read-failed': 'Die Datei konnte nicht gelesen werden.',
     'copy-failed':
       'Kopieren wurde vom Browser nicht erlaubt. Verwende die Druckansicht oder kopiere die Angaben direkt.',
+    'workbook-downloaded': 'Der Excel-Download wurde gestartet.',
+    'workbook-failed': 'Die Excel-Datei konnte nicht erstellt werden. Bitte versuche es erneut.',
     'print-failed': 'Die Druckansicht konnte nicht geöffnet werden.',
     'invalid-command': 'Diese Änderung ist nicht mehr gültig. Bitte prüfe die aktuelle Auswahl.',
   };
