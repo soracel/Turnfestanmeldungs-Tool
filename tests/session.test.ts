@@ -3,6 +3,7 @@ import { createSessionController } from '../src/application/session/controller';
 import type { ReadySession } from '../src/application/session/model';
 import { parseCsv } from '../src/infrastructure/csv/papa-parser';
 import { formatCsv } from '../src/infrastructure/exports/csv';
+import { exportModel } from '../src/application/session/selectors';
 import { fixtureCsv } from './fixture';
 import { referenceDate } from './helpers';
 function setup() {
@@ -213,4 +214,35 @@ it('preserves a corrected record with all cells cleared through CSV serializatio
   controller.downloadRegistrations();
   const [table] = downloadCsv.mock.calls[0];
   expect(parseCsv(formatCsv(table))).toEqual({ ok: true, table });
+});
+
+it('removes category disciplines from planning and exports while preserving source and surviving moves', async () => {
+  const { controller, ready, load } = setup();
+  await load();
+  const before = ready();
+  controller.moveDiscipline('active', 'Pendelstafette', 2);
+  controller.markTransferred(before.registrations[0].id, true);
+  controller.selectDiscipline('active', 'Fachtest Allround', false);
+  expect(ready().plans.get('masters35')).toBe(before.plans.get('masters35'));
+  expect(ready().plans.get('active')?.assignments.has('Fachtest Allround')).toBe(false);
+  expect(ready().plans.get('active')?.assignments.get('Pendelstafette')).toBe(2);
+  expect(ready().transferred.size).toBe(0);
+  expect(ready().table).toBe(before.table);
+  expect(ready().registrations).toBe(before.registrations);
+  const model = exportModel(ready());
+  expect(model.boards[0].disciplines.map((item) => item.name)).toEqual(['Pendelstafette']);
+  expect(model.registrations[0].clubDisciplines).toEqual(['Pendelstafette']);
+  expect(model.registrations[2].clubDisciplines).toContain('Fachtest Allround');
+  controller.selectRegistration(before.registrations[4].id, false);
+  controller.selectRegistration(before.registrations[4].id, true);
+  controller.optimiseCategory('active');
+  expect(ready().plans.get('active')?.assignments.has('Fachtest Allround')).toBe(false);
+  controller.selectDiscipline('active', 'Pendelstafette', false);
+  expect(exportModel(ready()).boards[0].participantCount).toBe(0);
+  expect(ready().plans.get('active')?.assignments.size).toBe(0);
+  controller.selectDiscipline('active', 'Fachtest Allround', true);
+  expect(ready().plans.get('active')?.assignments.has('Fachtest Allround')).toBe(true);
+  controller.remap();
+  controller.confirmMapping();
+  expect(ready().excludedDisciplines.size).toBe(0);
 });

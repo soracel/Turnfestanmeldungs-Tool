@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import type { ReadySession } from '../../../application/session/model';
-import { exportModel, unknownCategories } from '../../../application/session/selectors';
+import {
+  exportModel,
+  selectedRegistrations,
+  unknownCategories,
+} from '../../../application/session/selectors';
+import { disciplinesFor } from '../../../domain/planning/categories';
 import { categories, type CompetitionCategory } from '../../../domain/planning/model';
 import { useServices } from '../../app/context';
 import { categoryLabels, registrationName } from '../../messages/de-CH';
@@ -38,6 +43,7 @@ export function PlannerView({ session }: { session: ReadySession }) {
   const missing = model.registrations.filter(
     (registration) => registration.club === 'yes' && !registration.clubDisciplines.length,
   );
+  const available = disciplinesFor(selectedRegistrations(session), category, session.overrides);
   const board = model.boards.find((item) => item.category === category);
   return (
     <>
@@ -117,6 +123,29 @@ export function PlannerView({ session }: { session: ReadySession }) {
         Die automatische Verteilung ersetzt die aktuelle Einteilung dieser Kategorie. Manuell
         verschiebst du eine Disziplin über «Verschieben nach».
       </p>
+      <section className="panel" aria-label={`Disziplinenauswahl ${categoryLabels[category]}`}>
+        <h2>Disziplinen auswählen · {categoryLabels[category]}</h2>
+        <p className="muted">
+          Entferne das Häkchen, wenn eine Disziplin nicht stattfindet. Sie entfällt aus der
+          Einteilung und der Contest-Vorbereitung. Du kannst sie jederzeit wieder hinzufügen. Die
+          ursprünglichen Anmeldungen und der CSV-Export bleiben erhalten.
+        </p>
+        <div className="mapping-grid">
+          {available.map((discipline) => (
+            <label key={discipline.name} className="check-label">
+              <input
+                type="checkbox"
+                checked={!session.excludedDisciplines.get(category)?.has(discipline.name)}
+                onChange={(event) =>
+                  controller.selectDiscipline(category, discipline.name, event.target.checked)
+                }
+              />
+              {discipline.name} ({discipline.members.length} Anmeldungen)
+            </label>
+          ))}
+        </div>
+        {!available.length && <p className="muted">Keine Vereinsdisziplinen vorhanden.</p>}
+      </section>
       {board && <PlanningBoard board={board} onMove={controller.moveDiscipline} />}
       <details className={`panel ${styles['planner-explanation']}`}>
         <summary>Wie wird verteilt?</summary>

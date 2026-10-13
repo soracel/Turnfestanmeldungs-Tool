@@ -1,6 +1,6 @@
 import type { CsvTable, ImportConfig, ImportIssue, ParseResult } from '../imports/model';
 import type { Registration, RegistrationId } from '../../domain/registration/model';
-import type { CategoryOverrides, Plans } from '../../domain/planning/model';
+import type { CategoryOverrides, CompetitionCategory, Plans } from '../../domain/planning/model';
 export interface ImportedSource {
   readonly importId: string;
   readonly filename: string;
@@ -19,6 +19,7 @@ export interface ReadySession extends ImportedSource {
   readonly transferred: ReadonlySet<RegistrationId>;
   readonly overrides: CategoryOverrides;
   readonly plans: Plans;
+  readonly excludedDisciplines: ReadonlyMap<CompetitionCategory, ReadonlySet<string>>;
 }
 export type Session = { readonly stage: 'empty' } | MappingSession | ReadySession;
 export type SessionMessage =

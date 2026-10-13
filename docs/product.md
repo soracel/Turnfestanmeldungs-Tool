@@ -42,6 +42,17 @@ The full Google Forms branching and option catalogue have not been verified. A s
 11. Raw answers remain inspectable. Missing, invalid, negative, and not-applicable answers must not be silently conflated. The current normalised participation model is yes/no/open; richer missing reasons are a target improvement.
 12. Counts are registration-based until the user resolves duplicates. Name and email are not authoritative identity keys.
 
+## Club discipline selection
+
+Coordinators can exclude and restore entire disciplines independently for Aktive and 35+.
+Exclusions remain in session across navigation, optimisation, registration selection, edits,
+and category mapping. Surviving disciplines retain their manual allocations. Changes clear
+transfer marks. New imports, remapping, and reset clear discipline exclusions.
+Excluded disciplines do not contribute to allocations, conflicts, planned participant counts,
+or club discipline lists in Contest preparation, clipboard output, and printing. Registrations
+without any remaining discipline are reported as unplanned. Original registration answers,
+overview registration totals, and reusable CSV exports remain unchanged.
+
 ## Editing and reusable CSV exports
 
 All source cells can be edited from Registrations or Data review, including empty, unknown, and unanalysed values. Save reanalyses all registrations (including duplicate hints), preserves source identities and exclusions, reconciles surviving manual allocations, and clears transfer marks. Cancel discards the draft. The original imported cells remain inspectable during the session.

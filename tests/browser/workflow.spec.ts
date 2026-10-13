@@ -148,3 +148,34 @@ test('edits, cancels, exports selected rows and reimports corrections on a narro
   await expect(page.locator('small').filter({ hasText: /^nico@example\.com$/ })).toBeVisible();
   await expect(page.getByText('Mia Muster', { exact: true })).toHaveCount(1);
 });
+
+test('excludes and restores disciplines independently with keyboard controls on a narrow screen', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: /Demodaten ausprobieren/ }).click();
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Vereinswettkampf', exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const selection = page.getByRole('region', { name: 'Disziplinenauswahl Aktive', exact: true });
+  const checkbox = selection.getByRole('checkbox').first();
+  const label = await checkbox.locator('..').innerText();
+  const discipline = label.split(' (')[0].trim();
+  await checkbox.focus();
+  await checkbox.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toBeFocused();
+  await expect(
+    page.getByRole('combobox', { name: discipline + ' · Aktive · Wettkampfteil', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'Aktive automatisch verteilen', exact: true }).click();
+  await expect(checkbox).not.toBeChecked();
+  await page.getByRole('button', { name: '35+', exact: true }).click();
+  await page.getByRole('button', { name: 'Aktive', exact: true }).click();
+  await expect(checkbox).not.toBeChecked();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await checkbox.check();
+  await expect(
+    page.getByRole('combobox', { name: discipline + ' · Aktive · Wettkampfteil', exact: true }),
+  ).toBeVisible();
+});

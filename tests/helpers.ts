@@ -43,6 +43,7 @@ export function transferText(
       config: initialConfig(table),
       registrations,
       excluded: new Set(),
+      excludedDisciplines: new Map(),
       transferred: new Set(),
       overrides: new Map(),
       plans,

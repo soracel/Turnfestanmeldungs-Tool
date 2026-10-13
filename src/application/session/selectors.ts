@@ -13,6 +13,11 @@ import type { ReadySession } from './model';
 export function selectedRegistrations(session: ReadySession) {
   return session.registrations.filter((registration) => !session.excluded.has(registration.id));
 }
+export function plannedDisciplines(session: ReadySession, category: CompetitionCategory) {
+  return disciplinesFor(selectedRegistrations(session), category, session.overrides).filter(
+    (discipline) => !session.excludedDisciplines.get(category)?.has(discipline.name),
+  );
+}
 export function planningBoard(
   registrations: readonly Registration[],
   category: CompetitionCategory,
@@ -50,7 +55,14 @@ export function planningBoard(
 }
 export type PlanningBoardModel = ReturnType<typeof planningBoard>;
 export function exportModel(session: ReadySession) {
-  const registrations = selectedRegistrations(session);
+  const registrations = selectedRegistrations(session).map((registration) => {
+    const category = categoryOf(registration, session.overrides);
+    const excluded = category ? session.excludedDisciplines.get(category) : undefined;
+    return {
+      ...registration,
+      clubDisciplines: registration.clubDisciplines.filter((name) => !excluded?.has(name)),
+    };
+  });
   return {
     registrations,
     boards: categories.map((category) =>
