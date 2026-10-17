@@ -916,6 +916,7 @@ details summary {
     margin-left: 0;
   }
   .topbar {
+    flex-wrap: wrap;
     padding: 14px 20px;
     min-height: 60px;
   }
@@ -923,6 +924,7 @@ details summary {
     font-size: 10px;
   }
   .topbar > div {
+    flex-wrap: wrap;
     gap: 10px;
   }
   .slash {
