@@ -342,3 +342,29 @@ test('excludes and restores disciplines independently with keyboard controls on 
     page.getByRole('combobox', { name: discipline + ' · Aktive · Wettkampfteil', exact: true }),
   ).toBeVisible();
 });
+
+test('resumes a downloaded planning CSV directly with its manual allocation', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: /Demodaten ausprobieren/ }).click();
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Vereinswettkampf', exact: true }).click();
+  const moved = page
+    .getByRole('region', { name: 'Einteilung Aktive', exact: true })
+    .getByRole('combobox')
+    .first();
+  const label = await moved.getAttribute('aria-label');
+  if (!label) throw new Error('Missing allocation label');
+  await moved.selectOption('2');
+  const pending = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Planung speichern (CSV)' }).click();
+  const download = await pending;
+  const saved = await download.path();
+  if (!saved) throw new Error('Missing planning download');
+  await page.getByRole('button', { name: 'Daten verwerfen' }).click();
+  await page.locator('#csv-file').setInputFiles(saved);
+  await expect(
+    page.getByText('Deine gespeicherte Planung wurde vollständig geladen.'),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Vereinswettkampf', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: label, exact: true })).toHaveValue('2');
+});

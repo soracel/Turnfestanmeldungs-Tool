@@ -13,9 +13,9 @@ export function ReviewView({ session }: { session: ReadySession }) {
         Hinweise beziehen sich auf die aktuellen Angaben. Wettkampfregeln sind noch nicht geprüft.
       </PageTitle>
       <div className="callout">
-        Bearbeite Angaben direkt hier. Unter «Anmeldungen» kannst du die bereinigte CSV für später
-        exportieren. Mögliche Mehrfachanmeldungen kannst du hier einzeln aus der Auswertung
-        ausschliessen.
+        Bearbeite Angaben direkt hier. Mit «Planung speichern (CSV)» sicherst du alle Angaben und
+        Einstellungen für später. Mögliche Mehrfachanmeldungen kannst du hier einzeln aus der
+        Auswertung ausschliessen.
       </div>
       {affected.map((registration) => (
         <section className="panel issue-card" key={registration.id}>

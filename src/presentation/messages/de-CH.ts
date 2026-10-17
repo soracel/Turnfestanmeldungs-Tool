@@ -85,6 +85,11 @@ export function sessionMessage(message: SessionMessage): string {
   const labels = {
     'registration-changed':
       'Anmeldung gespeichert. Hinweise und Planung aktualisiert; Übertragungsstatus zurückgesetzt.',
+    'planning-saved':
+      'Planungsdatei heruntergeladen. Lade sie später über «CSV-Datei auswählen», um weiterzuplanen.',
+    'planning-restored': 'Deine gespeicherte Planung wurde vollständig geladen.',
+    'planning-invalid':
+      'Die Planungsdatei ist beschädigt oder hat eine nicht unterstützte Version. Die bisherige Planung bleibt erhalten.',
     downloaded:
       'CSV-Download gestartet. Die bereinigte Datei kann später wieder importiert werden.',
     'download-failed': 'Die CSV-Datei konnte nicht heruntergeladen werden.',

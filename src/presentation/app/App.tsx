@@ -95,6 +95,11 @@ function Shell({
             <Badge tone={session.stage !== 'empty' && session.demo ? 'amber' : 'green'}>
               {session.stage !== 'empty' && session.demo ? 'Demodaten' : 'Nur auf deinem Gerät'}
             </Badge>
+            {session.stage === 'ready' && (
+              <button className="button" onClick={controller.downloadPlanning}>
+                Planung speichern (CSV)
+              </button>
+            )}
             {(session.stage !== 'empty' || busy) && (
               <button className="link clear-button" onClick={controller.reset}>
                 Daten verwerfen

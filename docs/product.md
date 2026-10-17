@@ -57,7 +57,22 @@ overview registration totals, and reusable CSV exports remain unchanged.
 
 All source cells can be edited from Registrations or Data review, including empty, unknown, and unanalysed values. Save reanalyses all registrations (including duplicate hints), preserves source identities and exclusions, reconciles surviving manual allocations, and clears transfer marks. Cancel discards the draft. The original imported cells remain inspectable during the session.
 
-The explicit CSV download includes every selected registration regardless of search/filter, with corrected cells and explicit category overrides applied. Excluded rows are omitted. Column order, duplicate headings, empty cells, quoting, and embedded newlines survive export and reimport. Explicit rows of empty cells are retained as registrations with validation hints; empty lines are skipped. No export is offered when every row is excluded. On reimport, users confirm discipline-column roles and the multi-select delimiter again. CSV does not save competition-part assignments or transfer marks. Downloads are local and do not modify the source file or Google Sheets.
+The explicit CSV download includes every selected registration regardless of search/filter, with corrected cells and explicit category overrides applied. Excluded rows are omitted. Column order, duplicate headings, empty cells, quoting, and embedded newlines survive export and reimport. Explicit rows of empty cells are retained as registrations with validation hints; empty lines are skipped. No export is offered when every row is excluded. On reimport, users confirm discipline-column roles and the multi-select delimiter again. The cleaned registration CSV does not save competition-part assignments or transfer marks. Downloads are local and do not modify the source file or Google Sheets.
+
+## Local planning snapshots
+
+“Planung speichern (CSV)” explicitly downloads a complete, versioned planning snapshot as
+`turnfest-planung.csv`. Load it through the normal CSV picker to resume directly without mapping
+again. This CSV is a planning container with a JSON payload, not a tabular registration export.
+It preserves all corrected and original rows (including excluded registrations), column mappings,
+discipline roles, delimiter, category overrides, independent category allocations, discipline
+exclusions, manual festival-card choices and transfer marks. It also works when all registrations are excluded.
+Registration identities are recreated from source row positions; derived registrations, review
+hints and conflict scores are recalculated. Restored allocations retain their manual flag but
+make no saved optimisation proof claim. Subsequent changes still invalidate transfer marks.
+Unsupported versions or invalid snapshots leave the existing session intact. Ordinary source
+and cleaned registration CSVs retain their existing mapping workflow. Older CSV exports cannot
+recover planning settings that were never saved. No automatic browser storage is added.
 
 ## Privacy and reproducibility
 
@@ -88,7 +103,7 @@ The individual and judge summary sections sit beside their detail tables. Each s
 - Verify the actual Contest input fields and required totals.
 - Competition rules beyond the festival-card subset below remain unimplemented and unverified.
 - Associate future age limits, minimum team sizes, discipline restrictions, and judge requirements with an official source, section, and version.
-- Decide whether multiple events or opt-in saved planning sessions are required.
+- Decide whether multiple events are required.
 - The repository is `soracel/Turnfestanmeldungs-Tool`, licensed under the [MIT License](../LICENSE), copyright (c) 2026 soracel.
 
 Do not turn an assumed sporting rule into a validation error. User-confirmed category independence is a requirement; official event eligibility remains an open question.

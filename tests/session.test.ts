@@ -274,3 +274,81 @@ it('removes category disciplines from planning and exports while preserving sour
   controller.confirmMapping();
   expect(ready().excludedDisciplines.size).toBe(0);
 });
+
+it('restores the entire planning session from a serialized CSV without mapping again', async () => {
+  const { controller, ready, load, downloadCsv } = setup();
+  await load();
+  const first = ready().registrations[0];
+  const values = [...ready().table.rows[0]];
+  values[1] = 'Edited, "Name"\nSecond line';
+  controller.editRegistration(first.id, values);
+  controller.mapCategory('Aktive (Alter offen)', 'active');
+  controller.selectRegistration(ready().registrations[3].id, false);
+  controller.selectDiscipline('active', 'Pendelstafette', false);
+  controller.moveDiscipline('active', 'Fachtest Allround', 2);
+  controller.moveDiscipline('masters35', 'Fachtest Allround', 1);
+  controller.setCardChoice(first.id, 'C');
+  controller.setCardChoice(ready().registrations[3].id, 'none');
+  controller.markTransferred(first.id, true);
+  const before = ready();
+  controller.downloadPlanning();
+  const saved = formatCsv(downloadCsv.mock.calls[0][0]);
+  controller.reset();
+  await controller.importSource({ name: 'saved.csv', size: saved.length, read: async () => saved });
+  const after = ready();
+  expect(after.cardOverrides.get(after.registrations[0].id)).toBe('C');
+  expect(after.cardOverrides.get(after.registrations[3].id)).toBe('none');
+  expect(after.config).toEqual(before.config);
+  expect(after.table).toEqual(before.table);
+  expect(after.originalTable).toEqual(before.originalTable);
+  expect(after.overrides).toEqual(before.overrides);
+  expect(after.excludedDisciplines).toEqual(before.excludedDisciplines);
+  expect(after.plans.get('active')?.assignments).toEqual(before.plans.get('active')?.assignments);
+  expect(after.plans.get('masters35')?.assignments).toEqual(
+    before.plans.get('masters35')?.assignments,
+  );
+  expect(after.excluded.has(after.registrations[3].id)).toBe(true);
+  expect(after.transferred.has(after.registrations[0].id)).toBe(true);
+  expect(after.registrations[0].id).not.toBe(first.id);
+  controller.moveDiscipline('active', 'Fachtest Allround', 0);
+  expect(ready().transferred.size).toBe(0);
+});
+
+it('saves and restores a session even when every registration is excluded', async () => {
+  const { controller, ready, load, downloadCsv } = setup();
+  await load();
+  for (const registration of ready().registrations)
+    controller.selectRegistration(registration.id, false);
+  controller.downloadPlanning();
+  const saved = formatCsv(downloadCsv.mock.calls[0][0]);
+  await controller.importSource({ name: 'saved.csv', size: saved.length, read: async () => saved });
+  expect(ready().excluded.size).toBe(ready().registrations.length);
+});
+
+it.each(['version', 'json', 'mapping', 'part', 'row-reference'])(
+  'rejects invalid snapshot %s without replacing the session',
+  async (fault) => {
+    const { controller, ready, load, downloadCsv } = setup();
+    await load();
+    controller.downloadPlanning();
+    const snapshot = downloadCsv.mock.calls[0][0];
+    const payload = JSON.parse(snapshot.rows[0][2]);
+    if (fault === 'mapping') payload.config.mapping.first = 999;
+    if (fault === 'part') payload.plans[0][1].assignments[0][1] = 8;
+    if (fault === 'row-reference') payload.excluded = [999];
+    const saved = formatCsv({
+      headers: snapshot.headers,
+      rows: [
+        [
+          'session',
+          fault === 'version' ? '2' : '1',
+          fault === 'json' ? '{' : JSON.stringify(payload),
+        ],
+      ],
+    });
+    const before = ready();
+    await controller.importSource({ name: 'bad.csv', size: saved.length, read: async () => saved });
+    expect(ready()).toBe(before);
+    expect(controller.getSnapshot().message).toEqual({ kind: 'status', code: 'planning-invalid' });
+  },
+);

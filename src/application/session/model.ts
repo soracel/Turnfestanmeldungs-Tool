@@ -32,6 +32,9 @@ export type SessionMessage =
       readonly code:
         | 'registration-changed'
         | 'downloaded'
+        | 'planning-saved'
+        | 'planning-restored'
+        | 'planning-invalid'
         | 'download-failed'
         | 'selection-changed'
         | 'plan-changed'
