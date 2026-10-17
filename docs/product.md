@@ -69,12 +69,14 @@ Imported records remain in memory. Do not add persistence, remote logging, exter
 
 The overview and Contest preparation views offer an explicit local `.xlsx` download.
 The export is a snapshot and never changes selections, allocations or transfer marks.
-It contains five worksheets in order:
+It contains six worksheets in order:
 
 1. **Alle Anmeldungen**: all imported registrations, including excluded records with an explicit selection status, source row, original category, resolved category and review hints.
 2. **Einzelwettkampf**: selected positive individual responses, with discipline/apparatus counts and registration details.
 3. **Vereinswettkampf Aktive** and **Vereinswettkampf 35+**: independent side-by-side discipline rosters, grouped under the current competition parts. Each discipline has first-name and surname columns, sorted by surname and first name, followed by a total and a blank yellow responsibility field. Lists start at the same row and have a shared height. Empty parts retain a placeholder. Conflicting starts are red; source rows and review hints are cell notes. Duplicate registrations remain separate. Missing-discipline and unresolved-category notices appear below the lists. No filter is applied because rows across disciplines are independent. The two header rows stay frozen. Times and Tu/Ti are not available and are not inferred.
 4. **Richter**: selected positive judge responses and a separate clarification section for open answers or a brevet with a negative answer. Qualifications are source statements, not verified eligibility.
+
+5. **Festkarten**: selected registrations with their current card, manual/suggested status, cost and review hints. The adjacent order summary lists A/B/C quantities, unit prices, subtotals, the grand total and separate pending/no-card/review counts. Amounts use numeric CHF formatting; pending costs are blank. Base prices exclude surcharges and extras. Source/version and order deadline are included.
 
 Selected club registrations with an unresolved category remain on **Alle Anmeldungen** with an explicit warning; each category sheet reports their count and refers to that sheet. No category, timetable or eligibility rule is inferred from a reference workbook.
 
@@ -84,9 +86,70 @@ The individual and judge summary sections sit beside their detail tables. Each s
 
 - Confirm complete form sections, mandatory fields, and selection values.
 - Verify the actual Contest input fields and required totals.
-- Review the supplied competition PDF, identified locally as `../private-data/wettkampfvorschriften-stf-2027-version-20260924.pdf`. Its rules have not been implemented or verified here.
+- Competition rules beyond the festival-card subset below remain unimplemented and unverified.
 - Associate future age limits, minimum team sizes, discipline restrictions, and judge requirements with an official source, section, and version.
 - Decide whether multiple events or opt-in saved planning sessions are required.
 - The repository is `soracel/Turnfestanmeldungs-Tool`, licensed under the [MIT License](../LICENSE), copyright (c) 2026 soracel.
 
 Do not turn an assumed sporting rule into a validation error. User-confirmed category independence is a requirement; official event eligibility remains an open question.
+
+## Festival-card order preparation
+
+The Festkarten view prepares quantities and base costs for types A (CHF 98), B (CHF 45),
+and C (CHF 48) only, as requested by the club. Source: _Wettkampfvorschriften,
+Seeländisches Turnfest / Fête de gymnastique Biel/Bienne 2027_, version
+24 September 2026, section 8.5, page 30; judge provision in 2.4.1, page 8;
+deadlines in 1.7, page 7. The source PDF is supplied locally, not bundled in public assets.
+
+Only selected registrations count. One registration has at most one card: A/B also
+cover EGT participation. Duplicate hints remain visible and do not merge records.
+Quantities, subtotals and the total are derived from current choices. Pending and
+no-card choices are counted separately. Print includes the summary, assignments,
+review notices and source/version. No order is submitted.
+
+Suggestions are deliberately conservative, not eligibility decisions. A positive
+judge answer plus competition participation suggests A, regardless of age. Judge
+answers indicate availability rather than a verified appointment; functionary roles
+are absent from the import and require manual review. Explicit negative answers to
+both competitions suggest no card. Open participation or judge answers need review.
+For valid birth years, 2010 and younger receive B, including individual-only
+participation, because B covers EGT as well. The user confirmed that the source's
+“bis Jahrgang 2010” includes that year and all younger cohorts. Birth years before
+2010 receive A for club participation or C for individual-only participation with
+apparatus details and no other individual disciplines. Invalid or missing birthdays
+stay pending. Unclear individual events in older cohorts also stay pending.
+C assumes no A/B has been ordered elsewhere. Competing judges still receive A
+regardless of birth year; explicit manual choices continue to take precedence.
+
+Users may select A, B, C, pending or no card, or restore the suggestion. Explicit
+choices take precedence, with warnings for C with club participation, competing
+judges without A, and participants without a card. These warnings do not silently
+remove assigned cards from the total. Choices survive navigation and exclusion/
+reinclusion. Editing a source registration clears its choice for fresh review;
+new imports, remapping and reset clear all choices. Choices are session-only and
+are included in the Excel review workbook but not in the source CSV. Card changes
+clear transfer marks. All processing remains local.
+
+The summarised order deadline is 15 November 2026. Late purchase after 28 February
+through 15 April 2027 adds CHF 10 per card; later purchase is only at the festival.
+Displayed totals are base costs and exclude late fees, control surcharges, overnight
+stays and extra services. No surcharge is applied from the computer's date.
+
+The card assignment list supports combined name/source-row search and filters for
+A/B/C, pending, no card, review hints and manual choices. Filters only affect the
+on-screen assignment list. Order totals, Excel export and printing always include
+all selected registrations. Printing shows all assignments, including rows hidden
+by on-screen filters. The filter controls and filtered count are not printed.
+
+## Birthday plausibility
+
+A valid calendar date is separately reviewed against the injected current date:
+completed ages on the local calendar date below 3 or above 100 receive an `implausible-birthday` warning.
+These are data-review thresholds, not official minimum/maximum participation ages.
+The warning covers accidental current-year birthdays and appears in data review,
+registration details and Excel review hints. Original values remain unchanged;
+valid but implausible dates remain typed dates in Excel. Invalid/future/missing dates
+retain the existing invalid-date warning instead of a second plausibility warning.
+Competing registrations with implausible birthdays receive no automatic festival
+card, including judges. A manual choice is allowed but keeps the birthday review
+warning. Editing the birthday reanalyses the registration and card suggestion.

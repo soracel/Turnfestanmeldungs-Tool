@@ -57,6 +57,7 @@ test('runs demo planning, manual changes, current export, print, and reset under
     'Vereinswettkampf Aktive',
     'Vereinswettkampf 35+',
     'Richter',
+    'Festkarten',
   ]);
   expect(workbook.worksheets[0].getCell('B9').value).toBe('Ausgewählt');
   await page.setViewportSize({ width: 390, height: 844 });
@@ -147,6 +148,168 @@ test('edits, cancels, exports selected rows and reimports corrections on a narro
   await expect(page.getByText('Nico Beispiel', { exact: true })).toBeVisible();
   await expect(page.locator('small').filter({ hasText: /^nico@example\.com$/ })).toBeVisible();
   await expect(page.getByText('Mia Muster', { exact: true })).toHaveCount(1);
+});
+
+test('reviews festival card quantities, manual choices, exclusion and print on a narrow screen', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.print = () => {
+      document.documentElement.dataset.printed = 'true';
+    };
+  });
+  await page.goto('./');
+  await page
+    .locator('input[type=file]')
+    .setInputFiles({ name: 'fixture.csv', mimeType: 'text/csv', buffer: Buffer.from(fixtureCsv) });
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(0).selectOption('club');
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(1).selectOption('club');
+  await page
+    .getByRole('combobox', { name: 'Mehrfachauswahl trennen bei', exact: true })
+    .selectOption(',');
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  const summary = page.getByRole('region', { name: 'Bestellübersicht', exact: true });
+  await expect(summary.getByRole('row', { name: /Typ A/ })).toContainText('490.00');
+  await expect(summary).toContainText('1 noch offen');
+  const mia = page.getByRole('combobox', { name: 'Festkarte für Mia Muster · #1', exact: true });
+  await mia.focus();
+  await mia.selectOption('B');
+  await expect(mia).toBeFocused();
+  await page
+    .getByRole('combobox', { name: 'Festkarte für Jan Test · #4', exact: true })
+    .selectOption('C');
+  await expect(summary.getByRole('row', { name: /Total zugeordnet/ })).toContainText('485.00');
+  await page.getByRole('button', { name: 'Anmeldungen', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Mia Muster Datensatz 5 auswerten' }).uncheck();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  await expect(mia).toHaveValue('B');
+  await expect(summary.getByRole('row', { name: /Total zugeordnet/ })).toContainText('387.00');
+  await expect(
+    page.getByRole('combobox', { name: 'Festkarte für Mia Muster · #5', exact: true }),
+  ).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  const totalBounds = await summary
+    .getByRole('row', { name: /Total zugeordnet/ })
+    .getByRole('cell')
+    .last()
+    .boundingBox();
+  if (!totalBounds) throw new Error('Missing visible order total');
+  expect(totalBounds.x + totalBounds.width).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: 'test-results/festival-cards-mobile.png', fullPage: true });
+  await page.getByRole('button', { name: 'Bestellübersicht drucken', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-printed', 'true');
+  await page.emulateMedia({ media: 'print' });
+  await expect(summary).toBeVisible();
+  await expect(mia).not.toBeVisible();
+  await expect(page.getByText('Typ B · Jugend · manuell', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.screenshot({ path: 'test-results/festival-cards-print.png', fullPage: true });
+});
+
+test('automatically assigns youth festival cards from the confirmed birth-year boundary', async ({
+  page,
+}) => {
+  const youthCsv = fixtureCsv.replaceAll('1998-04-12', '2010-04-12');
+  await page.goto('./');
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'youth-fixture.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(youthCsv),
+  });
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(0).selectOption('club');
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(1).selectOption('club');
+  await page
+    .getByRole('combobox', { name: 'Mehrfachauswahl trennen bei', exact: true })
+    .selectOption(',');
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  const summary = page.getByRole('region', { name: 'Bestellübersicht', exact: true });
+  await expect(summary.getByRole('row', { name: /Typ B/ })).toContainText('90.00');
+  await expect(page.getByText('Typ B · Jugend · Vorschlag', { exact: true })).toHaveCount(2);
+  const card = page.getByRole('combobox', { name: 'Festkarte für Mia Muster · #1', exact: true });
+  await card.selectOption('A');
+  await expect(summary.getByRole('row', { name: /Typ B/ })).toContainText('45.00');
+  await card.selectOption('auto');
+  await expect(summary.getByRole('row', { name: /Typ B/ })).toContainText('90.00');
+});
+
+test('filters card assignments without changing totals, printed assignments or Excel exports', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: /Demodaten ausprobieren/ }).click();
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  const summary = page.getByRole('region', { name: 'Bestellübersicht', exact: true });
+  const total = await summary.innerText();
+  const assignments = page.getByRole('region', { name: 'Festkarten zuordnen' });
+  const firstCard = assignments.locator('article').first().getByRole('combobox');
+  await firstCard.selectOption('C');
+  const updatedTotal = await summary.innerText();
+  expect(updatedTotal).not.toBe(total);
+  const filter = page.getByRole('combobox', { name: 'Festkarten filtern', exact: true });
+  await filter.selectOption('C');
+  await expect(firstCard).toBeVisible();
+  const search = page.getByRole('searchbox', { name: 'Name oder Datensatz suchen' });
+  await search.fill('No matching fictional name');
+  await expect(search).toBeFocused();
+  await expect(page.getByText('Keine Anmeldungen entsprechen diesem Filter.')).toBeVisible();
+  expect(await summary.innerText()).toBe(updatedTotal);
+  await expect(assignments.locator('article:visible')).toHaveCount(0);
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Excel herunterladen' }).click();
+  const download = await downloading;
+  const path = await download.path();
+  if (!path) throw new Error('Missing workbook');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(path);
+  const sheet = workbook.getWorksheet('Festkarten');
+  if (!sheet) throw new Error('Missing card worksheet');
+  expect(sheet.getCell('D9').value).toBe('Typ C');
+  expect(sheet.getCell('A58').value).toBe(50);
+  await page.emulateMedia({ media: 'print' });
+  await expect(assignments.locator('article:visible')).toHaveCount(50);
+  await expect(search).not.toBeVisible();
+  await page.emulateMedia({ media: 'screen' });
+  await page.getByRole('button', { name: 'Filter zurücksetzen' }).click();
+  await expect(assignments.locator('article:visible')).toHaveCount(50);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test('flags a current-year birthday and clears the warning after correction', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-17T12:00:00Z'));
+  const csv = fixtureCsv.replace('1998-04-12', '2026-01-01');
+  await page.goto('./');
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'birthday-fixture.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv),
+  });
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(0).selectOption('club');
+  await page.getByRole('combobox', { name: 'Verwendung', exact: true }).nth(1).selectOption('club');
+  await page
+    .getByRole('combobox', { name: 'Mehrfachauswahl trennen bei', exact: true })
+    .selectOption(',');
+  await page.getByRole('button', { name: /Zuordnung bestätigen/ }).click();
+  await page.getByRole('button', { name: /^Daten prüfen/ }).click();
+  await expect(page.getByText(/Geburtstag unplausibel/)).toBeVisible();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  const card = page.getByRole('combobox', { name: 'Festkarte für Mia Muster · #1', exact: true });
+  await expect(card.locator('option:checked')).toContainText('Noch offen');
+  await page
+    .getByRole('combobox', { name: 'Festkarten filtern', exact: true })
+    .selectOption('review');
+  await expect(card).toBeVisible();
+  await page.getByRole('button', { name: 'Anmeldungen', exact: true }).click();
+  await page.getByRole('button', { name: 'Mia Muster Datensatz 1 bearbeiten' }).click();
+  await page.getByRole('dialog').getByLabel('4. Geburtstag', { exact: true }).fill('2010-01-01');
+  await page.getByRole('button', { name: 'Änderungen speichern', exact: true }).click();
+  await page.getByRole('button', { name: 'Festkarten', exact: true }).click();
+  await expect(card.locator('option:checked')).toContainText('Typ B');
+  await expect(page.getByText(/Geburtstag unplausibel:/)).toHaveCount(0);
 });
 
 test('excludes and restores disciplines independently with keyboard controls on a narrow screen', async ({

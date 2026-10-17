@@ -1,9 +1,9 @@
+import { exportModel } from '../src/application/session/selectors';
 import { describe, expect, it, vi } from 'vitest';
 import { createSessionController } from '../src/application/session/controller';
 import type { ReadySession } from '../src/application/session/model';
 import { parseCsv } from '../src/infrastructure/csv/papa-parser';
 import { formatCsv } from '../src/infrastructure/exports/csv';
-import { exportModel } from '../src/application/session/selectors';
 import { fixtureCsv } from './fixture';
 import { referenceDate } from './helpers';
 function setup() {
@@ -214,6 +214,34 @@ it('preserves a corrected record with all cells cleared through CSV serializatio
   controller.downloadRegistrations();
   const [table] = downloadCsv.mock.calls[0];
   expect(parseCsv(formatCsv(table))).toEqual({ ok: true, table });
+});
+
+it('preserves card choices through selection and clears stale choices after edits and remapping', async () => {
+  const { controller, ready, load } = setup();
+  await load();
+  const id = ready().registrations[0].id;
+  const otherId = ready().registrations[1].id;
+  controller.setCardChoice(id, 'B');
+  controller.setCardChoice(otherId, 'C');
+  const previous = ready();
+  controller.selectRegistration(id, false);
+  expect(ready().cardOverrides.get(id)).toBe('B');
+  controller.selectRegistration(id, true);
+  expect(ready().cardOverrides.get(id)).toBe('B');
+  controller.setCardChoice(id, 'invalid');
+  expect(ready().cardOverrides.get(id)).toBe('B');
+  const values = [...ready().table.rows[0]];
+  values[1] = 'New name';
+  controller.editRegistration(id, values);
+  expect(ready().cardOverrides.has(id)).toBe(false);
+  expect(ready().cardOverrides.get(otherId)).toBe('C');
+  expect(previous.cardOverrides.get(id)).toBe('B');
+  controller.setCardChoice(otherId, 'auto');
+  expect(ready().cardOverrides.has(otherId)).toBe(false);
+  controller.setCardChoice(id, 'B');
+  controller.remap();
+  controller.confirmMapping();
+  expect(ready().cardOverrides.size).toBe(0);
 });
 
 it('removes category disciplines from planning and exports while preserving source and surviving moves', async () => {

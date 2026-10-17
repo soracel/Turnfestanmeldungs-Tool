@@ -59,7 +59,7 @@ function requiredSheet(workbook: ExcelJS.Workbook, name: string) {
   return sheet;
 }
 describe('Excel review export', () => {
-  it('round trips five sheets with exclusions, current manual plans, typed dates and safe text', async () => {
+  it('round trips six sheets with exclusions, current manual plans, typed dates and safe text', async () => {
     const { controller, ready } = await setup();
     const excluded = ready().registrations[1];
     controller.selectRegistration(excluded.id, false);
@@ -79,6 +79,7 @@ describe('Excel review export', () => {
       'Vereinswettkampf Aktive',
       'Vereinswettkampf 35+',
       'Richter',
+      'Festkarten',
     ]);
     const all = requiredSheet(workbook, 'Alle Anmeldungen');
     expect(all.getCell('C9').value).toBe('=1+1');
@@ -91,6 +92,7 @@ describe('Excel review export', () => {
       'Vereinswettkampf Aktive',
       'Vereinswettkampf 35+',
       'Richter',
+      'Festkarten',
     ]) {
       expect(
         values(requiredSheet(workbook, name))
@@ -206,4 +208,38 @@ describe('Excel review export', () => {
     await controller.downloadWorkbook();
     expect(downloadWorkbook).toHaveBeenCalledTimes(2);
   });
+});
+
+it('round trips card assignments and numeric CHF totals including manual choices and exclusions', async () => {
+  const { controller, ready } = await setup();
+  const registrations = ready().registrations;
+  controller.setCardChoice(registrations[0].id, 'B');
+  controller.setCardChoice(registrations[1].id, 'C');
+  controller.setCardChoice(registrations[5].id, 'none');
+  controller.selectRegistration(registrations[4].id, false);
+  const session = ready();
+  const output = createWorkbook(workbookModel(session), referenceDate, messages);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(await output.xlsx.writeBuffer());
+  const sheet = requiredSheet(workbook, 'Festkarten');
+  expect(sheet.getCell('D9').value).toBe('Typ B');
+  expect(sheet.getCell('E9').value).toBe('Manuell');
+  expect(sheet.getCell('F9').value).toBe(45);
+  expect(sheet.getCell('F9').numFmt).toContain('CHF');
+  expect(sheet.getCell('D12').value).toBe('Noch offen');
+  expect(sheet.getCell('F12').value).toBe('');
+  expect(sheet.getCell('D13').value).toBe('Keine Festkarte');
+  expect(sheet.getCell('F13').value).toBe(0);
+  expect(sheet.getCell('J9').value).toBe(1);
+  expect(sheet.getCell('J10').value).toBe(1);
+  expect(sheet.getCell('J11').value).toBe(1);
+  expect(sheet.getCell('L12').value).toBe(191);
+  expect(sheet.getCell('L12').numFmt).toContain('CHF');
+  expect(sheet.getCell('G10').value).toContain('Typ C deckt');
+  expect(
+    values(sheet)
+      .filter((row) => typeof row[0] === 'number')
+      .map((row) => row[0]),
+  ).toEqual([1, 2, 3, 4, 6]);
+  expect(ready()).toBe(session);
 });

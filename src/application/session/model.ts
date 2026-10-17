@@ -1,3 +1,4 @@
+import type { CardChoice } from '../../domain/festival-cards/order';
 import type { CsvTable, ImportConfig, ImportIssue, ParseResult } from '../imports/model';
 import type { Registration, RegistrationId } from '../../domain/registration/model';
 import type { CategoryOverrides, CompetitionCategory, Plans } from '../../domain/planning/model';
@@ -20,6 +21,7 @@ export interface ReadySession extends ImportedSource {
   readonly overrides: CategoryOverrides;
   readonly plans: Plans;
   readonly excludedDisciplines: ReadonlyMap<CompetitionCategory, ReadonlySet<string>>;
+  readonly cardOverrides: ReadonlyMap<string, CardChoice>;
 }
 export type Session = { readonly stage: 'empty' } | MappingSession | ReadySession;
 export type SessionMessage =

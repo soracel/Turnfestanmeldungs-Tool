@@ -1,3 +1,4 @@
+import { cardPrices, type CardChoice, type CardWarning } from '../../domain/festival-cards/order';
 import ExcelJS from 'exceljs';
 import { addClubWorksheet } from './club-workbook';
 import type { WorkbookModel } from '../../application/session/workbook';
@@ -10,6 +11,7 @@ interface Section {
   headers: string[];
   rows: Value[][];
   filter?: boolean;
+  currencyColumns?: readonly number[];
 }
 
 function birthday(registration: Registration): Value {
@@ -104,7 +106,8 @@ export function createWorkbook(model: WorkbookModel, exportedAt: Date, messages:
           cell.font = { name: 'Calibri', size: 11 };
           cell.alignment = { vertical: 'top', wrapText: true };
           if (cell.value instanceof Date) cell.numFmt = 'dd.mm.yyyy';
-          if (typeof cell.value === 'number') cell.numFmt = '0';
+          if (typeof cell.value === 'number')
+            cell.numFmt = section.currencyColumns?.includes(column) ? '"CHF" #,##0.00' : '0';
           const text = value instanceof Date ? 'dd.mm.yyyy' : String(value);
           lines = Math.max(lines, ...text.split('\n').map((line) => Math.ceil(line.length / 28)));
           const warning =
@@ -256,6 +259,85 @@ export function createWorkbook(model: WorkbookModel, exportedAt: Date, messages:
         filter: true,
         headers: judgeHeaders,
         rows: model.judges.map(judgeRow),
+      },
+    ],
+  );
+  const cards = model.festivalCards;
+  const cardLabels: Record<CardChoice, string> = {
+    A: 'Typ A',
+    B: 'Typ B',
+    C: 'Typ C',
+    none: 'Keine Festkarte',
+    pending: 'Noch offen',
+  };
+  const cardHints: Record<CardWarning, string> = {
+    'birthday-review':
+      'Geburtstag unplausibel: Alter unter 3 oder über 100 Jahre. Jahrgang prüfen.',
+    duplicate: 'Mögliche Mehrfachanmeldung: vor der Bestellung vergleichen.',
+    'judge-needs-a': 'Mitturnende Richter benötigen Typ A.',
+    'club-needs-ab': 'Typ C deckt den Vereinswettkampf nicht ab.',
+    'participant-without-card':
+      'Wettkampfteilnahme ohne Festkarte; anderweitige Bestellung prüfen.',
+  };
+  sheet(
+    'Festkarten',
+    `${cards.rows.length} ausgewählte Anmeldungen. Grundpreise ohne Zuschläge und Zusatzleistungen; offene Zuordnungen fehlen im Total.`,
+    [
+      {
+        title: 'Zuordnung pro Anmeldung',
+        filter: true,
+        headers: [
+          'Quellzeile',
+          'Vorname',
+          'Nachname',
+          'Festkarte',
+          'Zuordnung',
+          'Kosten (CHF)',
+          'Prüfhinweise',
+        ],
+        currencyColumns: [6],
+        rows: cards.rows.map(({ registration, choice, manual, warnings }) => [
+          registration.rowNumber,
+          registration.first,
+          registration.last,
+          cardLabels[choice],
+          manual ? 'Manuell' : 'Vorschlag',
+          choice === 'pending' ? '' : choice === 'none' ? 0 : cardPrices[choice],
+          [
+            choice === 'pending' ? 'Festkarte noch zuordnen.' : '',
+            ...warnings.map((warning) => cardHints[warning]),
+            hints(registration),
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        ]),
+      },
+      {
+        title: 'Bestellübersicht',
+        headers: ['Festkarte', 'Anzahl', 'Einzelpreis (CHF)', 'Betrag (CHF)'],
+        currencyColumns: [3, 4],
+        rows: [
+          ...cards.totals.map((total) => [
+            cardLabels[total.type],
+            total.quantity,
+            total.unitPrice,
+            total.amount,
+          ]),
+          ['Total zugeordnet', cards.quantity, '', cards.amount],
+          ['Noch offen', cards.pending, '', ''],
+          ['Keine Festkarte', cards.withoutCard, '', ''],
+          ['Mit Prüfhinweisen', cards.review, '', ''],
+        ],
+      },
+      {
+        title: 'Grundlage',
+        headers: ['Quelle / Hinweis'],
+        rows: [
+          ['Wettkampfvorschriften STF Biel/Bienne 2027, Version 24.09.2026, Ziffer 8.5, S. 30.'],
+          ['A: CHF 98; B: CHF 45; C: CHF 48. B gilt für Jahrgang 2010 und jünger.'],
+          ['Summarische Bestellung bis 15.11.2026. Keine ausgelöste Bestellung.'],
+          ['Mehrfachanmeldungen bleiben separat. Manuelle Zuordnungen sind berücksichtigt.'],
+        ],
       },
     ],
   );
