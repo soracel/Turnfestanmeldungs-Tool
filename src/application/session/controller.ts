@@ -1,4 +1,5 @@
 import { isCardChoice } from '../../domain/festival-cards/order';
+import { restoreSnapshot, snapshotTable } from './snapshot';
 import { workbookModel } from './workbook';
 import { analyse, initialConfig, mappingErrors } from '../imports/prepare';
 import type { ImportConfig } from '../imports/model';
@@ -64,6 +65,16 @@ export function createSessionController(ports: ApplicationPorts) {
         const result = ports.parseCsv(text);
         if (!result.ok) {
           publish({ ...state, busy: false, message: { kind: 'parse', error: result } });
+          return;
+        }
+        try {
+          const restored = restoreSnapshot(result.table, String(request), ports.today());
+          if (restored) {
+            setSession(restored, { kind: 'status', code: 'planning-restored' });
+            return;
+          }
+        } catch {
+          publish({ ...state, busy: false, message: { kind: 'status', code: 'planning-invalid' } });
           return;
         }
         const config = initialConfig(result.table);
@@ -163,6 +174,15 @@ export function createSessionController(ports: ApplicationPorts) {
         kind: 'status',
         code: 'registration-changed',
       });
+    },
+    downloadPlanning() {
+      if (state.session.stage !== 'ready') return;
+      try {
+        ports.downloadCsv(snapshotTable(state.session), 'turnfest-planung.csv');
+        status('planning-saved');
+      } catch {
+        status('download-failed');
+      }
     },
     downloadRegistrations() {
       const session = state.session;

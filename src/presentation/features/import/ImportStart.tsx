@@ -24,7 +24,8 @@ export function ImportStart() {
         <h2>Mit deinem CSV-Export starten</h2>
         <p>
           Exportiere die Antworten aus Google Sheets als CSV
-          <br className="desktop" /> und wähle die Datei auf deinem Gerät aus.
+          <br className="desktop" /> oder lade deine gespeicherte Planungsdatei, um direkt
+          weiterzuplanen.
         </p>
         <label className="button primary file-button" htmlFor="csv-file">
           <Icon name="upload" />
