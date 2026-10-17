@@ -4,6 +4,7 @@ export type AnswerField = 'individual' | 'club' | 'overnight' | 'judge';
 export type IssueCode =
   | 'missing-name'
   | 'invalid-birthday'
+  | 'implausible-birthday'
   | 'invalid-email'
   | 'unknown-answer'
   | 'missing-category'

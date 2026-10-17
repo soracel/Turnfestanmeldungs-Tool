@@ -22,6 +22,17 @@ export function validDate(value: string, today: Date): boolean {
     date.getTime() <= today.getTime()
   );
 }
+function plausibleBirthday(value: string, today: Date): boolean {
+  const parts = value.includes('-')
+    ? value.split('-').map(Number)
+    : value.split('.').reverse().map(Number);
+  const [year, month, day] = parts;
+  const birthdayPending =
+    today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day);
+  const age = today.getFullYear() - year - (birthdayPending ? 1 : 0);
+  // Review thresholds only: these do not establish competition eligibility.
+  return age >= 3 && age <= 100;
+}
 export function participation(value: string): ParticipationAnswer {
   const answer = value.trim().toLowerCase();
   if (answer === 'ja') return 'yes';
@@ -38,6 +49,7 @@ export function normaliseRegistration(input: RegistrationInput, today: Date): Re
   const judge = participation(input.judge);
   if (!input.first || !input.last) add('missing-name');
   if (!validDate(input.birth, today)) add('invalid-birthday');
+  else if (!plausibleBirthday(input.birth, today)) add('implausible-birthday');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) add('invalid-email');
   const answers = { individual, club, overnight, judge };
   for (const field of ['individual', 'club', 'overnight', 'judge'] as const)

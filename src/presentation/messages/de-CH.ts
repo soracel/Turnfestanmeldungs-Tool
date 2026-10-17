@@ -33,6 +33,8 @@ export function issueText(issue: RegistrationIssue): string {
       return 'Vor- oder Nachname fehlt.';
     case 'invalid-birthday':
       return 'Geburtstag fehlt, liegt in der Zukunft oder ist ungültig.';
+    case 'implausible-birthday':
+      return 'Geburtstag unplausibel: Alter unter 3 oder über 100 Jahre. Bitte Jahrgang prüfen; möglicherweise wurde das aktuelle Jahr eingetragen.';
     case 'invalid-email':
       return 'E-Mail-Adresse fehlt oder ist ungültig.';
     case 'unknown-answer':

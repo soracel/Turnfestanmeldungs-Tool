@@ -1,3 +1,4 @@
+import { isCardChoice } from '../../domain/festival-cards/order';
 import { workbookModel } from './workbook';
 import { analyse, initialConfig, mappingErrors } from '../imports/prepare';
 import type { ImportConfig } from '../imports/model';
@@ -113,6 +114,7 @@ export function createSessionController(ports: ApplicationPorts) {
         excludedDisciplines: new Map(),
         transferred: new Set(),
         overrides: new Map(),
+        cardOverrides: new Map(),
       });
     },
     remap() {
@@ -155,7 +157,9 @@ export function createSessionController(ports: ApplicationPorts) {
         rows: session.table.rows.map((row, rowIndex) => (rowIndex === index ? [...values] : row)),
       };
       const registrations = analyse(table, session.config, session.importId, ports.today());
-      setSession(reconcile({ ...session, table, registrations }), {
+      const cardOverrides = new Map(session.cardOverrides);
+      cardOverrides.delete(id);
+      setSession(reconcile({ ...session, table, registrations, cardOverrides }), {
         kind: 'status',
         code: 'registration-changed',
       });
@@ -256,6 +260,21 @@ export function createSessionController(ports: ApplicationPorts) {
         else overrides.delete(raw);
         return reconcile({ ...session, overrides });
       }, 'category-changed');
+    },
+    setCardChoice(id: string, choice: string) {
+      const session = state.session;
+      if (
+        session.stage !== 'ready' ||
+        !session.registrations.some((registration) => registration.id === id) ||
+        (choice !== 'auto' && !isCardChoice(choice))
+      ) {
+        status('invalid-command');
+        return;
+      }
+      const cardOverrides = new Map(session.cardOverrides);
+      if (isCardChoice(choice)) cardOverrides.set(id, choice);
+      else cardOverrides.delete(id);
+      setSession({ ...session, cardOverrides, transferred: new Set() });
     },
     markTransferred(id: string, checked: boolean) {
       updateReady((session) => {

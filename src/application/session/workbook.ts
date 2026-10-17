@@ -1,7 +1,7 @@
 import { categoryOf } from '../../domain/planning/categories';
 import { groupByLabels } from '../../domain/registration/grouping';
 import type { ReadySession } from './model';
-import { exportModel } from './selectors';
+import { exportModel, festivalCardOrder } from './selectors';
 
 export function workbookModel(session: ReadySession) {
   const current = exportModel(session);
@@ -9,6 +9,7 @@ export function workbookModel(session: ReadySession) {
   return {
     ...current,
     filename: session.filename,
+    festivalCards: festivalCardOrder(session),
     clubSheets: current.boards.map((board) => ({
       board,
       registrations: current.registrations

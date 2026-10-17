@@ -10,7 +10,7 @@ export function OverviewView({
   navigate,
 }: {
   session: ReadySession;
-  navigate: (view: 'contest' | 'review' | 'planner') => void;
+  navigate: (view: 'contest' | 'review' | 'planner' | 'cards') => void;
 }) {
   const model = overviewModel(session);
   const stats: [string, readonly Registration[], string][] = [
@@ -27,6 +27,9 @@ export function OverviewView({
         actions={
           <div className="actions">
             <ExcelExportButton />
+            <button className="button" onClick={() => navigate('cards')}>
+              Festkarten bestellen
+            </button>
             <button className="button primary" onClick={() => navigate('contest')}>
               Contest vorbereiten →
             </button>

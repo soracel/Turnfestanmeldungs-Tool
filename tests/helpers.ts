@@ -46,6 +46,7 @@ export function transferText(
       excludedDisciplines: new Map(),
       transferred: new Set(),
       overrides: new Map(),
+      cardOverrides: new Map(),
       plans,
     }),
     plansOnly,

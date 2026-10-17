@@ -109,3 +109,33 @@ describe('Analysis', () => {
     expect(text).toContain('Brevet: LA');
   });
 });
+
+it('flags implausible ages separately from invalid dates using exact birthday boundaries', () => {
+  const cases: [string, boolean][] = [
+    ['2026-01-01', true],
+    ['01.01.2026', true],
+    ['2023-09-30', true],
+    ['2023-09-29', false],
+    ['1925-09-30', false],
+    ['1925-09-29', true],
+    ['2010-01-01', false],
+    ['1998-04-12', false],
+  ];
+  for (const [birth, expected] of cases) {
+    const { csv, config } = fixture();
+    csv.rows[0][3] = birth;
+    const registration = analyse(csv, config)[0];
+    expect(registration.birth).toBe(birth);
+    expect(registration.issues.some((issue) => issue.code === 'implausible-birthday')).toBe(
+      expected,
+    );
+    expect(registration.issues.some((issue) => issue.code === 'invalid-birthday')).toBe(false);
+  }
+  for (const birth of ['', '2026-12-31', '2026-02-30']) {
+    const { csv, config } = fixture();
+    csv.rows[0][3] = birth;
+    const codes = analyse(csv, config)[0].issues.map((issue) => issue.code);
+    expect(codes).toContain('invalid-birthday');
+    expect(codes).not.toContain('implausible-birthday');
+  }
+});

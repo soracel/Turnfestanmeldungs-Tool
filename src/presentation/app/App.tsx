@@ -1,3 +1,4 @@
+import { FestivalCardsView } from '../features/festival-cards/FestivalCardsView';
 import { useState, type ReactNode } from 'react';
 import type { ReadySession } from '../../application/session/model';
 import { useServices, useSession } from './context';
@@ -11,13 +12,14 @@ import { RegistrationsView } from '../features/registrations/RegistrationsView';
 import { ReviewView } from '../features/registrations/ReviewView';
 import { PlannerView } from '../features/planning/PlannerView';
 import { ContestView } from '../features/contest/ContestView';
-export type View = 'overview' | 'members' | 'review' | 'planner' | 'contest';
+export type View = 'overview' | 'members' | 'review' | 'planner' | 'contest' | 'cards';
 const navigation: [View, string][] = [
   ['overview', 'Übersicht'],
   ['members', 'Anmeldungen'],
   ['review', 'Daten prüfen'],
   ['planner', 'Vereinswettkampf'],
   ['contest', 'Contest vorbereiten'],
+  ['cards', 'Festkarten'],
 ];
 function Shell({
   view = 'overview',
@@ -137,6 +139,7 @@ function Workspace({ session }: { session: ReadySession }) {
     review: <ReviewView session={session} />,
     planner: <PlannerView session={session} />,
     contest: <ContestView session={session} />,
+    cards: <FestivalCardsView session={session} />,
   };
   return (
     <Shell view={view} navigate={navigate}>

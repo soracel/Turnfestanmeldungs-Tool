@@ -1,3 +1,4 @@
+import { buildCardOrder } from '../../domain/festival-cards/order';
 import type { Registration } from '../../domain/registration/model';
 import { categoryOf, disciplinesFor } from '../../domain/planning/categories';
 import { conflictCount, conflictsFor } from '../../domain/planning/conflicts';
@@ -129,4 +130,25 @@ export function unknownCategories(session: ReadySession) {
         .map((registration) => registration.category),
     ),
   ];
+}
+
+export function festivalCardOrder(session: ReadySession) {
+  return buildCardOrder(selectedRegistrations(session), session.cardOverrides);
+}
+
+export function filteredFestivalCardRows(
+  order: ReturnType<typeof festivalCardOrder>,
+  query: string,
+  filter: string,
+) {
+  const search = query.trim().toLocaleLowerCase('de-CH');
+  return order.rows.filter((row) => {
+    const text = `${row.registration.name} ${row.registration.rowNumber}`.toLocaleLowerCase(
+      'de-CH',
+    );
+    if (!text.includes(search)) return false;
+    if (filter === 'review') return row.warnings.length > 0;
+    if (filter === 'manual') return row.manual;
+    return filter === 'all' || row.choice === filter;
+  });
 }
